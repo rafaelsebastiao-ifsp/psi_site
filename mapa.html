@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Mapa com Pontos Fixos + Busca</title>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+
+<style>
+  body { margin: 0; font-family: Arial; }
+  #map { height: 90vh; }
+
+  .topbar {
+    padding: 10px;
+    background: #f4f4f4;
+    display: flex;
+    gap: 10px;
+  }
+
+  input {
+    padding: 8px;
+    width: 250px;
+  }
+
+  button {
+    padding: 8px;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <input type="text" id="busca" placeholder="Buscar lugar...">
+  <button onclick="buscarLugar()">Buscar</button>
+</div>
+
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<script>
+// Inicializa mapa
+const map = L.map('map').setView([-23.5505, -46.6333], 13);
+
+// Base do mapa (OpenStreetMap)
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '© OpenStreetMap'
+}).addTo(map);
+
+// 📍 Pontos pré-definidos
+const pontos = [
+  { nome: "Centro de São Paulo", lat: -23.5505, lng: -46.6333 },
+  { nome: "Av. Paulista", lat: -23.5631, lng: -46.6544 },
+  { nome: "Parque Ibirapuera", lat: -23.5874, lng: -46.6576 },
+  { nome: "IFSP", lat: -22.8577, lng: -47.2244 },
+];
+
+// Adiciona no mapa
+pontos.forEach(p => {
+  L.marker([p.lat, p.lng])
+    .addTo(map)
+    .bindPopup("<b>" + p.nome + "</b>");
+});
+
+
+// 🔎 Busca (Nominatim)
+function buscarLugar() {
+  const query = document.getElementById("busca").value;
+
+  fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${query}`)
+    .then(res => res.json())
+    .then(data => {
+      if (data.length > 0) {
+        const lugar = data[0];
+
+        const lat = parseFloat(lugar.lat);
+        const lon = parseFloat(lugar.lon);
+
+        map.setView([lat, lon], 15);
+
+
+      } else {
+        alert("Lugar não encontrado");
+      }
+    });
+}
+</script>
+
+</body>
+</html>
