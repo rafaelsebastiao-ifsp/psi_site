@@ -1,0 +1,1769 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Jogadores Anônimos</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue: #1A56DB;
+      --blue-light: #DBEAFE;
+      --blue-dark: #1E3A8A;
+      --yellow: #FBBF24;
+      --yellow-btn: #F5C518;
+      --green: #16A34A;
+      --white: #ffffff;
+      --gray-100: #F0F9FF;
+      --text-dark: #1e293b;
+      --text-muted: #64748b;
+      --nav-height: 56px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Sora', sans-serif;
+      color: var(--text-dark);
+      background: var(--white);
+      overflow-x: hidden;
+    }
+
+    /* ── NAVBAR ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 1000;
+      background: var(--white);
+      height: var(--nav-height);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 40px;
+      box-shadow: 0 1px 0 #e2e8f0;
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+
+    .nav-logo svg { width: 44px; height: 44px; }
+
+    .nav-logo-text {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.1;
+    }
+
+    .nav-logo-text span:first-child {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      color: #1e3a8a;
+    }
+
+    .nav-logo-text span:last-child {
+      font-size: 9px;
+      font-weight: 400;
+      color: #64748b;
+      letter-spacing: 0.03em;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 48px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      color: var(--text-dark);
+      text-transform: uppercase;
+      padding-bottom: 4px;
+      border-bottom: 2px solid transparent;
+      transition: border-color 0.2s, color 0.2s;
+    }
+
+    .nav-links a:hover,
+    .nav-links a.active {
+      color: var(--blue);
+      border-bottom-color: var(--blue);
+    }
+
+    /* blue accent line below nav */
+    .nav-accent {
+      position: fixed;
+      top: var(--nav-height);
+      left: 0; right: 0;
+      height: 4px;
+      background: var(--blue);
+      z-index: 999;
+    }
+
+    /* ── HERO SLIDER ── */
+    .hero {
+      margin-top: calc(var(--nav-height) + 4px);
+      position: relative;
+      height: calc(100vh - var(--nav-height) - 4px);
+      overflow: hidden;
+    }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      transition: opacity 0.7s ease;
+      display: flex;
+      align-items: center;
+    }
+
+    .slide.active { opacity: 1; }
+
+    .slide-bg {
+      position: absolute;
+      inset: 0;
+      background-size: cover;
+      background-position: center;
+    }
+
+    .slide-bg::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, rgba(0,0,0,0.55) 40%, transparent 80%);
+    }
+
+    .slide-content {
+      position: relative;
+      z-index: 2;
+      padding: 0 80px;
+      max-width: 660px;
+    }
+
+    .slide-content h1 {
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      font-weight: 800;
+      color: var(--white);
+      line-height: 1.15;
+      margin-bottom: 20px;
+    }
+
+    .slide-content p {
+      font-size: 1rem;
+      color: var(--yellow);
+      line-height: 1.65;
+      font-weight: 500;
+      margin-bottom: 36px;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 14px 32px;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-weight: 700;
+      text-decoration: none;
+      cursor: pointer;
+      border: none;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.2); }
+
+    .btn-blue { background: var(--blue); color: var(--white); }
+    .btn-yellow { background: var(--yellow-btn); color: #1a1a1a; }
+
+    .slide-btns { display: flex; flex-direction: column; gap: 14px; width: fit-content; }
+
+    /* Slider dots */
+    .slider-dots {
+      position: absolute;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10;
+      display: flex;
+      gap: 10px;
+    }
+
+    .dot {
+      width: 12px; height: 12px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.4);
+      cursor: pointer;
+      transition: background 0.3s;
+      border: none;
+    }
+
+    .dot.active { background: var(--white); }
+
+    /* ── SECTIONS COMMON ── */
+    section { padding: 80px 0; }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 60px;
+    }
+
+    /* ── QUEM SOMOS ── */
+    .quem-somos {
+      background: var(--gray-100);
+    }
+
+    .quem-somos h2 {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: var(--blue);
+      margin-bottom: 28px;
+    }
+
+    .quem-somos p {
+      font-size: 1.05rem;
+      line-height: 1.8;
+      color: #334155;
+      margin-bottom: 16px;
+    }
+
+    .whatsapp-btn {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: var(--green);
+      color: var(--white);
+      padding: 18px 36px;
+      border-radius: 50px;
+      text-decoration: none;
+      font-size: 1.4rem;
+      font-weight: 700;
+      width: fit-content;
+      margin: 40px auto 0;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+
+    .whatsapp-btn:hover { transform: scale(1.03); box-shadow: 0 8px 24px rgba(22,163,74,0.3); }
+
+    .whatsapp-btn svg { width: 36px; height: 36px; fill: white; }
+
+    .contact-cta {
+      text-align: center;
+      padding-top: 24px;
+    }
+
+    .contact-cta h3 {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--yellow);
+      margin-bottom: 24px;
+    }
+
+    /* ── SOBRE SECTION ── */
+    .sobre {
+      background: var(--gray-100);
+    }
+
+    .sobre-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      align-items: center;
+    }
+
+    .sobre h2 {
+      font-size: 2.4rem;
+      font-weight: 800;
+      color: #1e293b;
+      margin-bottom: 24px;
+    }
+
+    .sobre p {
+      font-size: 1rem;
+      line-height: 1.8;
+      color: #475569;
+      margin-bottom: 32px;
+    }
+
+    .sobre-video {
+      border-radius: 16px;
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+    }
+
+    .sobre-video img {
+      width: 100%;
+      display: block;
+    }
+
+    .play-btn {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 64px; height: 64px;
+      background: #FF0000;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .play-btn:hover { transform: translate(-50%, -50%) scale(1.1); }
+
+    .play-btn::after {
+      content: '';
+      border-style: solid;
+      border-width: 10px 0 10px 20px;
+      border-color: transparent transparent transparent white;
+      margin-left: 4px;
+    }
+
+    /* ── SLIDER HERO SLIDES BG ── */
+    .slide-1 .slide-bg {
+      background-image: url('images/Home Page.png');
+      background-size: cover;
+      background-position: center;
+    }
+
+    /* Fallback backgrounds when using real images */
+    .slide-bg-reunioes {
+      background-image: url('images/Home Page-7.png');
+    }
+
+    .slide-bg-autoaval {
+      background-image: url('images/Home Page-6.png');
+    }
+
+    .slide-bg-videoteca {
+      background-image: url('images/Home Page-8.png');
+    }
+
+    /* ── PRIMEIRO PASSO / REUNIÕES ── */
+    .primeiro-passo-header {
+      background: var(--blue-dark);
+      text-align: center;
+      padding: 32px 40px;
+    }
+
+    .primeiro-passo-header h2 {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--white);
+      letter-spacing: 0.05em;
+    }
+
+    .primeiro-passo-header p {
+      font-size: 0.95rem;
+      color: #bfdbfe;
+      margin-top: 4px;
+    }
+
+    .primeiro-passo-sub {
+      background: var(--blue-light);
+      padding: 20px 40px;
+      text-align: center;
+    }
+
+    .primeiro-passo-sub p {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--text-dark);
+    }
+
+    .primeiro-passo-body {
+      background: var(--gray-100);
+      padding: 60px;
+    }
+
+    .primeiro-passo-layout {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      gap: 60px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .grupos-sidebar h3 {
+      font-size: 1.6rem;
+      font-weight: 800;
+      margin-bottom: 20px;
+    }
+
+    .grupos-sidebar ul { list-style: none; }
+
+    .grupos-sidebar ul li {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.05rem;
+      margin-bottom: 12px;
+      font-weight: 500;
+    }
+
+    /* FORM CARD */
+    .form-card {
+      background: var(--white);
+      border-radius: 16px;
+      padding: 36px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+    }
+
+    .form-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+    }
+
+    .etapa-label { font-size: 1.1rem; font-weight: 600; }
+    .etapa-label span { font-weight: 800; }
+
+    .progress-bar {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 28px;
+    }
+
+    .progress-step {
+      flex: 1;
+      height: 6px;
+      border-radius: 3px;
+      background: #e2e8f0;
+    }
+
+    .progress-step.active { background: var(--yellow); }
+    .progress-step.done { background: var(--blue); }
+
+    .form-group { margin-bottom: 20px; }
+    .form-group label { display: block; font-size: 0.95rem; font-weight: 600; margin-bottom: 8px; }
+
+    .form-input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 0.95rem;
+      background: #fdf8f3;
+      color: #94a3b8;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .form-input:focus { border-color: var(--blue); color: var(--text-dark); }
+
+    .age-options { display: flex; gap: 10px; flex-wrap: wrap; }
+
+    .age-option {
+      padding: 8px 18px;
+      border-radius: 50px;
+      border: 1.5px solid #e2e8f0;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      background: white;
+    }
+
+    .age-option:hover, .age-option.selected {
+      border-color: var(--blue);
+      background: var(--blue-light);
+      color: var(--blue);
+    }
+
+    .radio-option {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 18px;
+      border-radius: 8px;
+      border: 1.5px solid #e2e8f0;
+      cursor: pointer;
+      margin-bottom: 10px;
+      transition: border-color 0.2s;
+    }
+
+    .radio-option:hover { border-color: var(--blue); }
+
+    .radio-option input { accent-color: var(--yellow); width: 18px; height: 18px; }
+
+    .contact-options { display: flex; gap: 10px; }
+
+    .contact-opt {
+      flex: 1;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1.5px solid #e2e8f0;
+      text-align: center;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+    }
+
+    .contact-opt:hover, .contact-opt.selected {
+      border-color: var(--blue);
+      background: var(--blue-light);
+      color: var(--blue);
+    }
+
+    /* ── LOCALIZAR REUNIÕES ── */
+    .reunioes-page {
+      padding: 60px;
+      background: var(--gray-100);
+      min-height: 100vh;
+    }
+
+    .reunioes-layout {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      gap: 60px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .reunioes-sidebar h1 {
+      font-size: 2.8rem;
+      font-weight: 900;
+      line-height: 1.1;
+      margin-bottom: 28px;
+    }
+
+    .reunioes-sidebar ul { list-style: none; }
+
+    .reunioes-sidebar ul li {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+      font-size: 1rem;
+    }
+
+    .reunioes-sidebar ul li a {
+      color: var(--blue);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .reunioes-sidebar ul li a:hover { text-decoration: underline; }
+
+    .reunioes-main {}
+
+    .reunioes-tabs {
+      display: flex;
+      gap: 0;
+      margin-bottom: 0;
+      border-bottom: 2px solid #e2e8f0;
+    }
+
+    .reunioes-tab {
+      padding: 14px 48px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      font-family: inherit;
+      color: #94a3b8;
+      border-bottom: 3px solid transparent;
+      margin-bottom: -2px;
+      transition: color 0.2s;
+    }
+
+    .reunioes-tab.active {
+      color: var(--blue);
+      border-bottom-color: var(--yellow);
+    }
+
+    .reunioes-map {
+      width: 100%;
+      height: 380px;
+      border-radius: 8px;
+      overflow: hidden;
+      margin: 20px 0;
+    }
+
+    .reunioes-map iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    .reunioes-search {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 12px 18px;
+      background: white;
+      margin-bottom: 20px;
+    }
+
+    .reunioes-search input {
+      border: none;
+      outline: none;
+      font-family: inherit;
+      font-size: 0.95rem;
+      width: 100%;
+      color: #94a3b8;
+    }
+
+    .filter-btns { display: flex; gap: 12px; margin-bottom: 20px; }
+
+    .filter-btn {
+      padding: 10px 28px;
+      border-radius: 6px;
+      border: 1.5px solid #e2e8f0;
+      background: white;
+      font-family: inherit;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .filter-btn.active { background: var(--yellow); border-color: var(--yellow); }
+
+    .reunioes-count { font-size: 0.95rem; font-weight: 500; margin-bottom: 16px; color: #475569; }
+
+    .reuniao-card {
+      display: flex;
+      gap: 0;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      background: white;
+      margin-bottom: 12px;
+      overflow: hidden;
+    }
+
+    .reuniao-date {
+      background: white;
+      padding: 16px;
+      min-width: 80px;
+      text-align: center;
+      border-right: 3px solid var(--blue);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .reuniao-date .day { font-size: 1.6rem; font-weight: 900; }
+    .reuniao-date .month { font-size: 0.7rem; font-weight: 700; color: var(--blue); text-transform: uppercase; }
+    .reuniao-date .weekday { font-size: 0.7rem; color: var(--blue); font-weight: 700; }
+
+    .reuniao-info { padding: 16px; flex: 1; }
+    .reuniao-info h4 { font-size: 1rem; font-weight: 700; margin-bottom: 4px; }
+    .reuniao-info .time { font-size: 0.85rem; color: #64748b; margin-bottom: 6px; }
+    .reuniao-info .tipo { font-size: 0.85rem; color: #475569; margin-bottom: 8px; }
+
+    .dist-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--blue);
+    }
+
+    .dist-badge::before {
+      content: '●';
+      color: var(--blue);
+      font-size: 0.6rem;
+    }
+
+    .reuniao-action { padding: 16px; display: flex; align-items: center; }
+
+    .btn-detalhes {
+      padding: 8px 20px;
+      background: var(--blue);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-detalhes:hover { background: var(--blue-dark); }
+
+    /* ── AUTOAVALIAÇÃO ── */
+    .autoaval-header {
+      background: var(--blue);
+      padding: 32px 60px;
+    }
+
+    .autoaval-header h1 {
+      font-size: 2rem;
+      font-weight: 900;
+      color: white;
+      letter-spacing: 0.04em;
+    }
+
+    .autoaval-header p { color: rgba(255,255,255,0.85); font-size: 1rem; margin-top: 4px; }
+
+    .autoaval-hero {
+      position: relative;
+      height: 480px;
+      overflow: hidden;
+    }
+
+    .autoaval-hero img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      filter: brightness(0.45);
+    }
+
+    .autoaval-hero-content {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      padding: 60px;
+    }
+
+    .autoaval-hero-text {
+      max-width: 500px;
+    }
+
+    .autoaval-hero-text p {
+      font-size: 1.05rem;
+      line-height: 1.75;
+      color: rgba(255,255,255,0.9);
+      margin-bottom: 32px;
+    }
+
+    .autoaval-cta-card {
+      position: absolute;
+      right: 60px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: var(--yellow-btn);
+      border-radius: 20px;
+      padding: 28px 36px;
+      max-width: 320px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+    }
+
+    .autoaval-cta-card a {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: #1a1a1a;
+      text-decoration: none;
+    }
+
+    .autoaval-badges {
+      display: flex;
+      gap: 20px;
+      position: absolute;
+      bottom: 32px;
+      left: 60px;
+    }
+
+    .autoaval-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: white;
+      font-size: 0.9rem;
+    }
+
+    .autoaval-badge::before {
+      content: '';
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: var(--blue);
+      display: block;
+    }
+
+    /* ── VIDEOTECA ── */
+    .videos-section {
+      background: var(--gray-100);
+      padding: 80px 60px;
+    }
+
+    .videos-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 40px;
+    }
+
+    .videos-header h2 { font-size: 1.8rem; font-weight: 800; }
+
+    .videos-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+
+    .video-card {
+      border-radius: 12px;
+      overflow: hidden;
+      background: #1e293b;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .video-card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(0,0,0,0.2); }
+
+    .video-thumbnail {
+      position: relative;
+      aspect-ratio: 16/9;
+      overflow: hidden;
+    }
+
+    .video-thumbnail img { width: 100%; height: 100%; object-fit: cover; }
+
+    .video-play {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 48px; height: 48px;
+      background: #FF0000;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .video-play::after {
+      content: '';
+      border-style: solid;
+      border-width: 8px 0 8px 16px;
+      border-color: transparent transparent transparent white;
+      margin-left: 3px;
+    }
+
+    .video-info { padding: 14px 16px; }
+
+    .video-info h4 { font-size: 0.9rem; font-weight: 700; color: white; margin-bottom: 6px; line-height: 1.4; }
+
+    .video-meta { font-size: 0.78rem; color: #94a3b8; }
+
+    /* ── OS DOZE PASSOS ── */
+    .doze-passos {
+      background: var(--gray-100);
+      padding: 80px 60px;
+    }
+
+    .doze-passos-header {
+      text-align: center;
+      margin-bottom: 60px;
+    }
+
+    .doze-passos-header h2 {
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      color: #94a3b8;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .doze-passos-header h1 {
+      font-size: 2.2rem;
+      font-weight: 900;
+      color: var(--text-dark);
+      margin-bottom: 16px;
+    }
+
+    .doze-passos-header p {
+      font-size: 0.95rem;
+      color: #64748b;
+      max-width: 600px;
+      margin: 0 auto;
+      line-height: 1.7;
+    }
+
+    .passos-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .passo-card {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .passo-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
+
+    .passo-num {
+      font-size: 2.4rem;
+      font-weight: 900;
+      color: #e2e8f0;
+      line-height: 1;
+      min-width: 40px;
+    }
+
+    .passo-text {
+      font-size: 0.85rem;
+      line-height: 1.65;
+      color: #475569;
+    }
+
+    /* ── CHATBOT ── */
+    .chatbot-btn {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      z-index: 2000;
+      width: 56px; height: 56px;
+      background: var(--yellow);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+      border: none;
+      transition: transform 0.2s;
+    }
+
+    .chatbot-btn:hover { transform: scale(1.1); }
+
+    .chatbot-window {
+      position: fixed;
+      bottom: 96px;
+      right: 28px;
+      z-index: 2000;
+      width: 340px;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.18);
+      overflow: hidden;
+      display: none;
+      flex-direction: column;
+    }
+
+    .chatbot-window.open { display: flex; }
+
+    .chatbot-header {
+      background: var(--blue-dark);
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .chatbot-header img { width: 36px; height: 36px; }
+
+    .chatbot-header-text { color: white; }
+    .chatbot-header-text strong { display: block; font-size: 0.9rem; }
+    .chatbot-header-text span { font-size: 0.75rem; opacity: 0.8; }
+
+    .chatbot-body {
+      padding: 20px;
+      min-height: 120px;
+    }
+
+    .chatbot-msg {
+      background: var(--blue-light);
+      border-radius: 12px 12px 12px 0;
+      padding: 12px 16px;
+      font-size: 0.9rem;
+      margin-bottom: 16px;
+      max-width: 85%;
+    }
+
+    .chatbot-quick-btns { display: flex; flex-direction: column; gap: 8px; }
+
+    .chatbot-quick {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      background: var(--yellow);
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      color: #1a1a1a;
+      transition: background 0.15s;
+    }
+
+    .chatbot-quick:hover { background: #e6b800; }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--blue-dark);
+      color: white;
+      padding: 40px 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    footer p { font-size: 0.85rem; opacity: 0.7; }
+
+    .footer-crisis {
+      font-size: 0.85rem;
+      opacity: 0.9;
+      text-align: right;
+    }
+
+    .footer-crisis strong { display: block; font-size: 0.95rem; margin-bottom: 4px; }
+
+    /* ── PAGE SECTIONS ── */
+    .page-section { display: none; }
+    .page-section.active { display: block; }
+
+    /* ── MOBILE MENU ── */
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      padding: 8px;
+      border: none;
+      background: transparent;
+    }
+
+    .hamburger span {
+      display: block;
+      width: 24px;
+      height: 2px;
+      background: var(--text-dark);
+      border-radius: 2px;
+      transition: all 0.3s;
+    }
+
+    @media (max-width: 900px) {
+      .hamburger { display: flex; }
+      .nav-links {
+        display: none;
+        position: fixed;
+        top: var(--nav-height);
+        left: 0; right: 0;
+        background: white;
+        flex-direction: column;
+        padding: 20px;
+        gap: 0;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+      }
+      .nav-links.open { display: flex; }
+      .nav-links li { border-bottom: 1px solid #f1f5f9; }
+      .nav-links a { display: block; padding: 14px 8px; font-size: 14px; border-bottom: none; }
+      .container { padding: 0 24px; }
+      .sobre-grid { grid-template-columns: 1fr; }
+      .passos-grid { grid-template-columns: 1fr 1fr; }
+      .videos-grid { grid-template-columns: 1fr 1fr; }
+      .primeiro-passo-layout { grid-template-columns: 1fr; }
+      .reunioes-layout { grid-template-columns: 1fr; }
+      nav { padding: 0 20px; }
+      footer { flex-direction: column; gap: 20px; text-align: center; }
+      .footer-crisis { text-align: center; }
+      .slide-content { padding: 0 32px; }
+      .autoaval-cta-card { position: relative; right: auto; top: auto; transform: none; margin-top: 24px; }
+      .autoaval-hero-content { flex-direction: column; padding: 32px; }
+    }
+
+    @media (max-width: 600px) {
+      .passos-grid { grid-template-columns: 1fr; }
+      .videos-grid { grid-template-columns: 1fr; }
+      .reunioes-tabs { overflow-x: auto; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav id="navbar">
+  <a class="nav-logo" href="#" onclick="showPage('home')">
+    <svg viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="22" cy="22" r="20" stroke="#1E3A8A" stroke-width="2.5"/>
+      <circle cx="22" cy="22" r="13" stroke="#1E3A8A" stroke-width="2"/>
+      <circle cx="22" cy="22" r="6" fill="#1E3A8A"/>
+    </svg>
+    <div class="nav-logo-text">
+      <span>JOGADORES</span>
+      <span>ANÔNIMOS</span>
+      <span style="font-size:7px;color:#94a3b8;letter-spacing:0.06em">APOIO AO JOGADOR COMPULSIVO DO ANONIMATO</span>
+    </div>
+  </a>
+
+  <button class="hamburger" onclick="toggleMenu()" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+
+  <ul class="nav-links" id="navLinks">
+    <li><a href="#" onclick="showPage('quem-somos')" data-page="quem-somos">QUEM SOMOS</a></li>
+    <li><a href="#" onclick="showPage('contato')" data-page="contato">CONTATO</a></li>
+    <li><a href="#" onclick="showPage('reunioes')" data-page="reunioes">REUNIÕES</a></li>
+    <li><a href="#" onclick="showPage('autoaval')" data-page="autoaval">AUTOAVALIAÇÃO</a></li>
+    <li><a href="#" onclick="showPage('videoteca')" data-page="videoteca">VIDEOTECA</a></li>
+  </ul>
+</nav>
+<div class="nav-accent"></div>
+
+<!-- ═══════════════════════════════════════════════════
+     HOME PAGE
+═══════════════════════════════════════════════════ -->
+<div id="page-home" class="page-section active">
+
+  <!-- HERO SLIDER -->
+  <section class="hero">
+    <!-- Slide 1: Inicio -->
+    <div class="slide active" id="slide-0">
+      <div class="slide-bg" style="background-image: url(''); background-color: #1a2a4a;">
+        <!-- fallback gradient com imagem -->
+        <img src="" alt="" style="display:none" onerror="">
+      </div>
+      <!-- Background usando canvas / CSS -->
+      <div style="position:absolute;inset:0;background:linear-gradient(135deg,#0f1f3d 0%,#1a3a6b 50%,#2d5a8e 100%);"></div>
+      <!-- Imagem real como overlay -->
+      <img src="images/Home Page.png" alt="Hero" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;opacity:0.7;">
+      <div style="position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,0.65) 45%,transparent 80%);"></div>
+      <div class="slide-content">
+        <h1>O Desejo de Parar é o Início</h1>
+        <p>Somos uma comunidade de pessoas que conhece de perto o peso do jogo compulsivo.<br>
+        Este espaço é anônimo, gratuito, e foi feito para quem está tentando entender o que está vivendo—sem julgamento, sem pressa.</p>
+        <div class="slide-btns">
+          <a class="btn btn-blue" href="#" onclick="showPage('quem-somos')">Quem somos?</a>
+          <a class="btn btn-yellow" href="#" onclick="showPage('reunioes')">Ver proximas reuniões</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 2: Reunioes -->
+    <div class="slide" id="slide-1">
+      <img src="images/Home Page-7.png" alt="Reuniões" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0.7;">
+      <div style="position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,0.65) 45%,transparent 80%);"></div>
+      <div class="slide-content">
+        <h1>Reuniões</h1>
+        <p>Localizar reuniões de ajuda próximas a você, onde encontrará um ambiente acolhedor, com pessoas que passam por desafios semelhantes e estão dispostas a compartilhar experiências e caminhos de superação.</p>
+        <div class="slide-btns">
+          <a class="btn btn-yellow" href="#" onclick="showPage('reunioes')">Localizar Reuniões</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 3: Autoavaliação -->
+    <div class="slide" id="slide-2">
+      <img src="images/Home Page-6.png" alt="Autoavaliação" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0.7;">
+      <div style="position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,0.65) 45%,transparent 80%);"></div>
+      <div class="slide-content">
+        <h1>Autoavaliação</h1>
+        <p>Quer entender melhor sua relação com os jogos? Faça uma rápida autoavaliação e descubra se o seu hábito está equilibrado ou se já apresenta sinais de excesso.</p>
+        <div class="slide-btns">
+          <a class="btn btn-yellow" href="#" onclick="showPage('autoaval')">Quero entender</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 4: Videoteca -->
+    <div class="slide" id="slide-3">
+      <img src="images/Home Page-8.png" alt="Videoteca" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0.7;">
+      <div style="position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,0.65) 45%,transparent 80%);"></div>
+      <div class="slide-content">
+        <h1>Aprenda &amp; Compartilhe</h1>
+        <p>Quer aprender mais sobre os riscos e impactos do vício em apostas? Explore conteúdos educativos que explicam de forma clara como esse comportamento pode afetar a vida financeira, emocional e social.</p>
+        <div class="slide-btns">
+          <a class="btn btn-yellow" href="#" onclick="showPage('videoteca')">Explorar Videoteca</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dots -->
+    <div class="slider-dots">
+      <button class="dot active" onclick="goSlide(0)"></button>
+      <button class="dot" onclick="goSlide(1)"></button>
+      <button class="dot" onclick="goSlide(2)"></button>
+      <button class="dot" onclick="goSlide(3)"></button>
+    </div>
+  </section>
+
+  <!-- QUEM SOMOS TEASER -->
+  <section class="quem-somos">
+    <div class="container">
+      <h2>O que é o programa Jogadores Anônimos?</h2>
+      <p>Jogadores Anônimos é uma irmandade formada por pessoas que compartilham experiências para parar de jogar, manter a abstinência e ajudar outros jogadores compulsivos. Surgiu em 1957, em Los Angeles, a partir do encontro de dois homens que buscavam superar o vício em jogos.</p>
+      <p>Com base em princípios espirituais e no apoio mútuo, o grupo cresceu e se espalhou por diversos países, oferecendo ajuda a quem enfrenta a compulsão por jogos. No Brasil, a primeira reunião aconteceu em 1993, no Rio de Janeiro.</p>
+      <div class="contact-cta">
+        <h3>Entre em contato e saiba mais!</h3>
+        <a class="whatsapp-btn" href="https://wa.me/5599999999999" target="_blank">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          (99) 99999-9999
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- SOBRE JA + VIDEO -->
+  <section class="sobre">
+    <div class="container">
+      <div class="sobre-grid">
+        <div>
+          <h2>Sobre o JA</h2>
+          <p>Jogadores Anônimos é uma comunidade de apoio mútuo, anônima e sem fins lucrativos, para pessoas em recuperação do jogo compulsivo. Baseada nos Doze Passos, oferece um caminho de recuperação através do apoio entre pares que compartilham a mesma experiência.</p>
+          <a class="btn btn-blue" href="#" onclick="showPage('quem-somos')">Saiba mais sobre o JA</a>
+        </div>
+        <div class="sobre-video">
+          <img src="images/image 22.png" alt="Vídeo sobre o JA" onerror="this.style.background='#1e293b';this.style.height='240px';">
+          <div class="play-btn" onclick="alert('Vídeo em breve!')"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div><!-- /home -->
+
+<!-- ═══════════════════════════════════════════════════
+     QUEM SOMOS / PRIMEIRO PASSO
+═══════════════════════════════════════════════════ -->
+<div id="page-quem-somos" class="page-section">
+  <div class="primeiro-passo-header">
+    <h2>PRIMEIRO PASSO</h2>
+    <p>Conte um pouco sobre você</p>
+  </div>
+  <div class="primeiro-passo-sub">
+    <p>Suas respostas são anônimas. Vamos entrar em contato para te conectar com um grupo.</p>
+  </div>
+  <div class="primeiro-passo-body">
+    <div class="primeiro-passo-layout">
+      <div class="grupos-sidebar">
+        <h3>Grupos</h3>
+        <ul>
+          <li>🇧🇷 Brasil</li>
+          <li>🇦🇴 Angola</li>
+          <li>🇲🇿 Moçambique</li>
+        </ul>
+      </div>
+      <div class="form-card">
+        <div class="form-header">
+          <div class="etapa-label">Etapa <span id="etapaNum">1</span> de <span>3</span></div>
+          <svg width="40" height="40" viewBox="0 0 44 44" fill="none"><circle cx="22" cy="22" r="20" stroke="#1E3A8A" stroke-width="2"/><circle cx="22" cy="22" r="13" stroke="#1E3A8A" stroke-width="1.5"/><circle cx="22" cy="22" r="6" fill="#1E3A8A"/></svg>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-step active" id="ps1"></div>
+          <div class="progress-step" id="ps2"></div>
+          <div class="progress-step" id="ps3"></div>
+        </div>
+
+        <!-- Etapa 1 -->
+        <div id="etapa1">
+          <div class="form-group">
+            <label>Como podemos te chamar? (apelido ou inicial)</label>
+            <input type="text" class="form-input" placeholder="Ex: Edu." id="fNome">
+          </div>
+          <div class="form-group">
+            <label>Idade</label>
+            <div class="age-options">
+              <div class="age-option" onclick="selectAge(this)">16-26</div>
+              <div class="age-option" onclick="selectAge(this)">27-37</div>
+              <div class="age-option" onclick="selectAge(this)">38-50</div>
+              <div class="age-option" onclick="selectAge(this)">50+</div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Cidade / Estado</label>
+            <input type="text" class="form-input" placeholder="Ex: Hortolândia, SP." id="fCidade">
+          </div>
+          <div class="form-group">
+            <label>Há quanto tempo o jogo virou um problema?</label>
+            <div class="radio-option"><input type="radio" name="tempo" value="1"> Menos de 1 ano</div>
+            <div class="radio-option"><input type="radio" name="tempo" value="2"> Entre 1 e 5 anos</div>
+            <div class="radio-option"><input type="radio" name="tempo" value="3"> Mais de 5 anos</div>
+            <div class="radio-option"><input type="radio" name="tempo" value="4"> Prefiro não dizer</div>
+          </div>
+          <div class="form-group">
+            <label>Como prefere ser contatado?</label>
+            <div class="contact-options">
+              <div class="contact-opt" onclick="selectContact(this)">WhatsApp</div>
+              <div class="contact-opt" onclick="selectContact(this)">E-mail</div>
+              <div class="contact-opt" onclick="selectContact(this)">Ligação</div>
+            </div>
+          </div>
+          <button class="btn btn-blue" style="width:100%;margin-top:16px;" onclick="nextEtapa()">Continuar →</button>
+        </div>
+
+        <!-- Etapa 2 -->
+        <div id="etapa2" style="display:none;">
+          <div class="form-group">
+            <label>Qual é o seu contato?</label>
+            <input type="text" class="form-input" placeholder="Telefone ou e-mail" id="fContato">
+          </div>
+          <div class="form-group">
+            <label>Você já tentou parar de jogar antes?</label>
+            <div class="radio-option"><input type="radio" name="tentou" value="s"> Sim</div>
+            <div class="radio-option"><input type="radio" name="tentou" value="n"> Não</div>
+            <div class="radio-option"><input type="radio" name="tentou" value="nd"> Prefiro não dizer</div>
+          </div>
+          <div class="form-group">
+            <label>Você prefere reuniões…</label>
+            <div class="radio-option"><input type="radio" name="tipo_r" value="p"> Presenciais</div>
+            <div class="radio-option"><input type="radio" name="tipo_r" value="o"> Online</div>
+            <div class="radio-option"><input type="radio" name="tipo_r" value="a"> Ambos</div>
+          </div>
+          <div style="display:flex;gap:12px;margin-top:16px;">
+            <button class="btn" style="flex:1;border:1.5px solid #e2e8f0;color:#475569;" onclick="prevEtapa()">← Voltar</button>
+            <button class="btn btn-blue" style="flex:2;" onclick="nextEtapa()">Continuar →</button>
+          </div>
+        </div>
+
+        <!-- Etapa 3 -->
+        <div id="etapa3" style="display:none;">
+          <div style="text-align:center;padding:32px 0;">
+            <div style="font-size:3rem;margin-bottom:16px;">✅</div>
+            <h3 style="font-size:1.4rem;font-weight:800;margin-bottom:12px;">Recebemos sua mensagem!</h3>
+            <p style="color:#64748b;line-height:1.7;">Entraremos em contato em breve para te conectar com um grupo de apoio. Lembre-se: você não está sozinho.</p>
+            <div style="margin-top:28px;padding:20px;background:#f0f9ff;border-radius:12px;font-size:0.9rem;color:#1e3a8a;font-weight:600;">
+              Em crise agora? CVV — 188 (24h, gratuito e anônimo)<br>JA Brasil — 0800-026-1212
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     CONTATO
+═══════════════════════════════════════════════════ -->
+<div id="page-contato" class="page-section">
+  <section style="background:var(--gray-100);padding:80px 60px;min-height:60vh;">
+    <div class="container">
+      <h2 style="font-size:2.2rem;font-weight:800;color:var(--blue);margin-bottom:40px;">Contato</h2>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:start;">
+        <div>
+          <p style="font-size:1rem;line-height:1.8;color:#475569;margin-bottom:32px;">
+            Entre em contato conosco para saber mais sobre os grupos, reuniões ou tirar qualquer dúvida. 
+            Todas as informações são tratadas com total sigilo e anonimato.
+          </p>
+          <div style="display:flex;flex-direction:column;gap:20px;">
+            <a class="whatsapp-btn" href="https://wa.me/5599999999999" target="_blank" style="margin:0;">
+              <svg style="fill:white;width:28px;height:28px;" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+              (99) 99999-9999
+            </a>
+            <div style="padding:20px;background:white;border-radius:12px;border:1.5px solid #e2e8f0;">
+              <strong style="display:block;margin-bottom:8px;color:#1e3a8a;">Em crise agora?</strong>
+              <p style="font-size:0.9rem;color:#475569;">CVV — 188 (24h, gratuito e anônimo)<br>JA Brasil — 0800-026-1212</p>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div style="background:white;border-radius:16px;padding:36px;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
+            <h3 style="font-size:1.2rem;font-weight:700;margin-bottom:24px;">Envie uma mensagem</h3>
+            <div class="form-group">
+              <label>Nome / Apelido</label>
+              <input type="text" class="form-input" placeholder="Como posso te chamar?">
+            </div>
+            <div class="form-group">
+              <label>E-mail ou WhatsApp</label>
+              <input type="text" class="form-input" placeholder="Seu contato">
+            </div>
+            <div class="form-group">
+              <label>Mensagem</label>
+              <textarea class="form-input" rows="5" placeholder="Escreva sua mensagem..." style="resize:vertical;"></textarea>
+            </div>
+            <button class="btn btn-blue" style="width:100%;" onclick="alert('Mensagem enviada! Entraremos em contato em breve.')">Enviar mensagem</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     REUNIÕES
+═══════════════════════════════════════════════════ -->
+<div id="page-reunioes" class="page-section">
+  <div class="reunioes-page">
+    <div class="reunioes-layout">
+      <div class="reunioes-sidebar">
+        <h1>Localizar Reuniões</h1>
+        <ul>
+          <li><span>🇧🇷</span><a href="#">Brasil</a></li>
+          <li><span>🇦🇴</span> Angola</li>
+          <li><span>🇲🇿</span> Moçambique</li>
+        </ul>
+      </div>
+      <div class="reunioes-main">
+        <div class="reunioes-tabs">
+          <button class="reunioes-tab active" onclick="setTab(this,'presenciais')">Presenciais</button>
+          <button class="reunioes-tab" onclick="setTab(this,'online')">Online</button>
+        </div>
+
+        <div id="presenciais">
+          <div class="reunioes-map">
+            <iframe
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d117702.51688649286!2d-43.42824879902637!3d-22.908918649083143!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x997203001e70eb%3A0x7dd8d3bc842df91!2sRio%20de%20Janeiro%2C%20RJ!5e0!3m2!1spt-BR!2sbr!4v1714151000000!5m2!1spt-BR!2sbr"
+              loading="lazy"
+              referrerpolicy="no-referrer-when-downgrade">
+            </iframe>
+          </div>
+          <div class="reunioes-search">
+            <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#94a3b8" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <input type="text" placeholder="Buscar por bairro, cidade ou CEP">
+          </div>
+          <div class="filter-btns">
+            <button class="filter-btn active" onclick="setFilter(this)">Hoje</button>
+            <button class="filter-btn" onclick="setFilter(this)">Esta semana</button>
+            <button class="filter-btn" onclick="setFilter(this)">Este mês</button>
+          </div>
+          <p class="reunioes-count">5 reuniões próximas de você</p>
+
+          <div id="lista-reunioes">
+            <!-- cards gerados pelo JS -->
+          </div>
+        </div>
+
+        <div id="online" style="display:none;">
+          <div style="padding:40px;text-align:center;color:#64748b;">
+            <p style="font-size:1.1rem;margin-bottom:16px;">Reuniões online disponíveis via Zoom e Google Meet.</p>
+            <a class="btn btn-blue" href="https://wa.me/5599999999999" target="_blank">Solicitar link por WhatsApp</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     AUTOAVALIAÇÃO
+═══════════════════════════════════════════════════ -->
+<div id="page-autoaval" class="page-section">
+  <div class="autoaval-header">
+    <h1>AUTOAVALIAÇÃO</h1>
+    <p>Doze perguntas, uma conversa honesta consigo mesmo</p>
+  </div>
+  <div class="autoaval-hero">
+    <img src="images/Os doze passos-2.png" alt="Autoavaliação">
+    <div class="autoaval-hero-content">
+      <div class="autoaval-hero-text">
+        <p>Escritas por pessoas que passaram pelo mesmo que você talvez esteja passando. Não é um diagnóstico, não é um julgamento, é um espelho. Responda com calma, sem ninguém vendo. Ao final, você decide o que fazer com o resultado.</p>
+        <div class="autoaval-cta-card">
+          <a href="#" onclick="startAutoaval()">Fazer o teste &nbsp; →</a>
+        </div>
+        <div class="autoaval-badges" style="position:relative;left:0;bottom:0;margin-top:32px;">
+          <div class="autoaval-badge">Leva 3 minutos</div>
+          <div class="autoaval-badge">Anônimo</div>
+          <div class="autoaval-badge">Sem julgamento</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quiz -->
+  <div id="autoaval-quiz" style="display:none;background:var(--gray-100);padding:60px;">
+    <div style="max-width:700px;margin:0 auto;">
+      <div id="quiz-container"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     VIDEOTECA
+═══════════════════════════════════════════════════ -->
+<div id="page-videoteca" class="page-section">
+  <section class="videos-section">
+    <div style="max-width:1200px;margin:0 auto;">
+      <div class="videos-header">
+        <h2>Videoteca</h2>
+        <p style="color:#64748b;font-size:0.9rem;">Conteúdos educativos sobre jogo compulsivo</p>
+      </div>
+      <div class="videos-grid" id="videosGrid">
+        <!-- Gerado pelo JS -->
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     CHATBOT
+═══════════════════════════════════════════════════ -->
+<button class="chatbot-btn" onclick="toggleChat()">
+  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" stroke-width="2" stroke-linecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+</button>
+
+<div class="chatbot-window" id="chatWindow">
+  <div class="chatbot-header">
+    <svg width="36" height="36" viewBox="0 0 44 44" fill="none"><circle cx="22" cy="22" r="20" stroke="white" stroke-width="2"/><circle cx="22" cy="22" r="13" stroke="white" stroke-width="1.5"/><circle cx="22" cy="22" r="6" fill="white"/></svg>
+    <div class="chatbot-header-text">
+      <strong>Jogadores Anônimos</strong>
+      <span>Como posso te ajudar?</span>
+    </div>
+  </div>
+  <div class="chatbot-body">
+    <div class="chatbot-msg">Como posso te ajudar?</div>
+    <div class="chatbot-quick-btns">
+      <a class="chatbot-quick" href="#" onclick="showPage('reunioes');toggleChat()">Como encontro um grupo perto de mim? ↗</a>
+      <a class="chatbot-quick" href="#" onclick="showPage('autoaval');toggleChat()">Quero descobrir se sou viciado ↗</a>
+      <a class="chatbot-quick" href="#" onclick="showPage('quem-somos');toggleChat()">O que é esse site? ↗</a>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div>
+    <p>© 2025 Jogadores Anônimos Brasil</p>
+    <p style="margin-top:6px;">Comunidade de apoio mútuo, anônima e sem fins lucrativos.</p>
+  </div>
+  <div class="footer-crisis">
+    <strong>Em crise agora?</strong>
+    CVV — 188 (24h, gratuito e anônimo) · JA Brasil — 0800-026-1212
+  </div>
+</footer>
+
+<script>
+  /* ── NAVIGATION ── */
+  function showPage(page) {
+    document.querySelectorAll('.page-section').forEach(el => el.classList.remove('active'));
+    document.getElementById('page-' + page).classList.add('active');
+
+    // atualiza link ativo
+    document.querySelectorAll('.nav-links a').forEach(a => {
+      a.classList.toggle('active', a.dataset.page === page);
+    });
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    closeMenu();
+
+    if (page === 'videoteca') renderVideos();
+    if (page === 'reunioes') renderReunioes();
+  }
+
+  function toggleMenu() {
+    document.getElementById('navLinks').classList.toggle('open');
+  }
+
+  function closeMenu() {
+    document.getElementById('navLinks').classList.remove('open');
+  }
+
+  /* ── HERO SLIDER ── */
+  let currentSlide = 0;
+  const totalSlides = 4;
+  let sliderInterval;
+
+  function goSlide(idx) {
+    document.getElementById('slide-' + currentSlide).classList.remove('active');
+    document.querySelectorAll('.dot')[currentSlide].classList.remove('active');
+    currentSlide = idx;
+    document.getElementById('slide-' + currentSlide).classList.add('active');
+    document.querySelectorAll('.dot')[currentSlide].classList.add('active');
+  }
+
+  function nextSlide() {
+    goSlide((currentSlide + 1) % totalSlides);
+  }
+
+  sliderInterval = setInterval(nextSlide, 5000);
+
+  /* ── FORM ETAPAS ── */
+  let etapaAtual = 1;
+
+  function nextEtapa() {
+    if (etapaAtual < 3) {
+      document.getElementById('etapa' + etapaAtual).style.display = 'none';
+      etapaAtual++;
+      document.getElementById('etapa' + etapaAtual).style.display = 'block';
+      document.getElementById('etapaNum').textContent = etapaAtual;
+      updateProgress();
+    }
+  }
+
+  function prevEtapa() {
+    if (etapaAtual > 1) {
+      document.getElementById('etapa' + etapaAtual).style.display = 'none';
+      etapaAtual--;
+      document.getElementById('etapa' + etapaAtual).style.display = 'block';
+      document.getElementById('etapaNum').textContent = etapaAtual;
+      updateProgress();
+    }
+  }
+
+  function updateProgress() {
+    for (let i = 1; i <= 3; i++) {
+      const el = document.getElementById('ps' + i);
+      el.className = 'progress-step' + (i < etapaAtual ? ' done' : i === etapaAtual ? ' active' : '');
+    }
+  }
+
+  function selectAge(el) {
+    document.querySelectorAll('.age-option').forEach(o => o.classList.remove('selected'));
+    el.classList.add('selected');
+  }
+
+  function selectContact(el) {
+    document.querySelectorAll('.contact-opt').forEach(o => o.classList.remove('selected'));
+    el.classList.add('selected');
+  }
+
+  /* ── REUNIÕES ── */
+  const reunioesData = [
+    { nome: 'Grupo Nova História — Osasco', horario: '18h00 - 19h30', endereco: 'Av. Thereza Ana Cecon Breda, 1896', tipo: 'Reunião aberta', dist: '1,2 KM DE VOCÊ', dia: '16', mes: 'ABR', diasem: 'QUI' },
+    { nome: 'Grupo Recomeço — São Paulo', horario: '19h00 - 20h30', endereco: 'Rua da Consolação, 451', tipo: 'Reunião aberta', dist: '3,5 KM DE VOCÊ', dia: '17', mes: 'ABR', diasem: 'SEX' },
+    { nome: 'Grupo Esperança — Santo André', horario: '20h00 - 21h00', endereco: 'Av. Industrial, 2000', tipo: 'Reunião fechada', dist: '8,1 KM DE VOCÊ', dia: '18', mes: 'ABR', diasem: 'SAB' },
+  ];
+
+  function renderReunioes() {
+    const container = document.getElementById('lista-reunioes');
+    if (!container) return;
+    container.innerHTML = reunioesData.map(r => `
+      <div class="reuniao-card">
+        <div class="reuniao-date">
+          <div class="day">${r.dia}</div>
+          <div class="month">${r.mes}</div>
+          <div class="weekday">${r.diasem}</div>
+        </div>
+        <div class="reuniao-info">
+          <h4>${r.nome}</h4>
+          <div class="time">${r.horario} &nbsp; ${r.endereco}</div>
+          <div class="tipo">${r.tipo}</div>
+          <div class="dist-badge">${r.dist}</div>
+        </div>
+        <div class="reuniao-action">
+          <button class="btn-detalhes" onclick="alert('Detalhes em breve!')">Detalhes</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function setTab(btn, tab) {
+    document.querySelectorAll('.reunioes-tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('presenciais').style.display = tab === 'presenciais' ? 'block' : 'none';
+    document.getElementById('online').style.display = tab === 'online' ? 'block' : 'none';
+  }
+
+  function setFilter(btn) {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+
+  /* ── AUTOAVALIAÇÃO QUIZ ── */
+  const quizPerguntas = [
+    'Você já perdeu tempo de trabalho ou escola por causa dos jogos?',
+    'O jogo fez sua vida familiar sofrer?',
+    'O jogo já afetou sua reputação?',
+    'Você já sentiu remorso depois de jogar?',
+    'Você já jogou para pagar dívidas ou resolver dificuldades financeiras?',
+    'O jogo causou uma diminuição em sua ambição ou eficiência?',
+    'Depois de perder, você sentiu a necessidade de voltar para recuperar o dinheiro?',
+    'Após uma vitória, você sentiu um forte impulso de voltar a jogar?',
+    'Você costuma jogar até o último centavo?',
+    'Você já pediu dinheiro emprestado para jogar?',
+    'Você já vendeu algo para conseguir dinheiro para jogar?',
+    'Você é relutante em usar o dinheiro do jogo para despesas normais?'
+  ];
+
+  let respostas = [];
+  let perguntaAtual = 0;
+
+  function startAutoaval() {
+    respostas = [];
+    perguntaAtual = 0;
+    document.getElementById('autoaval-quiz').style.display = 'block';
+    renderQuiz();
+    document.getElementById('autoaval-quiz').scrollIntoView({ behavior: 'smooth' });
+  }
+
+  function renderQuiz() {
+    const container = document.getElementById('quiz-container');
+    if (perguntaAtual >= quizPerguntas.length) {
+      const sim = respostas.filter(r => r === 'sim').length;
+      container.innerHTML = `
+        <div style="text-align:center;">
+          <h2 style="font-size:1.8rem;font-weight:800;margin-bottom:16px;">Resultado</h2>
+          <div style="font-size:3rem;margin-bottom:16px;">${sim >= 7 ? '🔴' : sim >= 4 ? '🟡' : '🟢'}</div>
+          <p style="font-size:1.1rem;line-height:1.75;color:#475569;margin-bottom:24px;">
+            ${sim >= 7
+              ? 'Você respondeu SIM a ' + sim + ' perguntas. Isso pode indicar que o jogo está causando problemas sérios. Recomendamos fortemente buscar apoio.'
+              : sim >= 4
+              ? 'Você respondeu SIM a ' + sim + ' perguntas. Há sinais de que o jogo pode estar afetando sua vida. Vale a pena conversar com alguém.'
+              : 'Você respondeu SIM a apenas ' + sim + ' pergunta(s). Seu comportamento parece equilibrado, mas fique atento.'}
+          </p>
+          <a class="btn btn-blue" href="#" onclick="showPage('quem-somos')" style="margin-right:12px;">Primeiro passo</a>
+          <a class="btn btn-yellow" href="#" onclick="showPage('reunioes')">Encontrar um grupo</a>
+        </div>
+      `;
+      return;
+    }
+
+    const progresso = Math.round((perguntaAtual / quizPerguntas.length) * 100);
+    container.innerHTML = `
+      <div style="margin-bottom:8px;font-size:0.85rem;color:#64748b;font-weight:600;">Pergunta ${perguntaAtual + 1} de ${quizPerguntas.length}</div>
+      <div style="height:6px;background:#e2e8f0;border-radius:3px;margin-bottom:32px;">
+        <div style="height:6px;background:var(--blue);border-radius:3px;width:${progresso}%;transition:width 0.4s;"></div>
+      </div>
+      <h3 style="font-size:1.3rem;font-weight:700;margin-bottom:32px;line-height:1.5;">${quizPerguntas[perguntaAtual]}</h3>
+      <div style="display:flex;gap:16px;">
+        <button onclick="responder('sim')" class="btn btn-blue" style="flex:1;font-size:1.1rem;padding:16px;">SIM</button>
+        <button onclick="responder('nao')" class="btn" style="flex:1;font-size:1.1rem;padding:16px;border:2px solid #e2e8f0;color:#475569;">NÃO</button>
+      </div>
+    `;
+  }
+
+  function responder(r) {
+    respostas.push(r);
+    perguntaAtual++;
+    renderQuiz();
+  }
+
+  /* ── VIDEOS ── */
+  const videosData = [
+    { titulo: '#015 Vício em Jogos e Saúde Pública', thumb: 'images/image 22.png', canal: 'JA Brasil', views: '2.3K' },
+    { titulo: 'Como funcionam as apostas online? Entenda os riscos', thumb: 'images/Desktop - 5.png', canal: 'JA Brasil', views: '1.8K' },
+    { titulo: 'Os Doze Passos: O caminho para a recuperação', thumb: 'images/Os doze passos-2.png', canal: 'JA Brasil', views: '3.1K' },
+    { titulo: 'Depoimento: Como parei de jogar', thumb: 'images/Home Page-7.png', canal: 'JA Brasil', views: '4.7K' },
+    { titulo: 'Família e jogo compulsivo: como ajudar', thumb: 'images/Home Page-8.png', canal: 'JA Brasil', views: '2.0K' },
+    { titulo: 'Autoavaliação: Você é um jogador compulsivo?', thumb: 'images/Home Page-6.png', canal: 'JA Brasil', views: '5.5K' },
+  ];
+
+  function renderVideos() {
+    const grid = document.getElementById('videosGrid');
+    if (!grid) return;
+    grid.innerHTML = videosData.map(v => `
+      <div class="video-card" onclick="alert('Vídeo em breve!')">
+        <div class="video-thumbnail">
+          <img src="${v.thumb}" alt="${v.titulo}" onerror="this.style.background='#334155';this.style.height='160px'">
+          <div class="video-play"></div>
+        </div>
+        <div class="video-info">
+          <h4>${v.titulo}</h4>
+          <div class="video-meta">${v.canal} · ${v.views} visualizações</div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  /* ── CHATBOT ── */
+  function toggleChat() {
+    document.getElementById('chatWindow').classList.toggle('open');
+  }
+
+  /* Init */
+  renderReunioes();
+</script>
+</body>
+</html>
