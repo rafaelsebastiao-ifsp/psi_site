@@ -126,15 +126,26 @@ function setFilter(btn) {
 
 /* ── AUTOAVALIAÇÃO QUIZ ── */
 const quizPerguntas = [
-  'Você apostou mais do que realmente poderia perder?',
-  'Você precisa jogar com quantias maiores de dinheiro para ter a mesma sensação de paixão?',
-  'Você voltou outro dia para tentar recuperar o dinheiro que perdeu?',
-  'Você pediu dinheiro emprestado ou vendeu alguma coisa para jogar?',
-  'Você já sentiu que pode ter problemas com jogos de azar?',
-  'As pessoas criticaram suas apostas ou disseram-lhe que você tinha um problema com o jogo, quer você achasse que isso era verdade ou não?',
-  'Você já se sentiu incomodado pela maneira como joga ou pelo que acontece quando você joga?',
-  'O jogo envolveu algum problema de saúde, incluindo estresse ou ansiedade?',
-  'O seu jogo causou algum problema financeiro para você ou sua família?'
+  'Você já perdeu horas de trabalho da escola devido ao jogo?',
+  'Alguma vez o jogo já causou infelicidade na sua vida familiar?',
+  'O jogo afetou a sua reputação?',
+  'Você já sentiu remorso após jogar?',
+  'Alguma vez você já jogou para obter dinheiro para pagar dívidas ou então resolver dificuldades financeiras?',
+  'O jogo causou uma diminuição na sua ambição ou eficiência?',
+  'Após ter perdido você se sentiu como se necessitasse voltar o mais cedo possível e recuperar as suas perdas?',
+  'Após um ganho você sentiu uma forte vontade de voltar e ganhar mais?',
+  'Você geralmente jogava até que seu último centavo acabasse?',
+  'Você já pediu dinheiro emprestado para financiar seu jogo?',
+  'Alguma vez você já vendeu alguma coisa para financiar o jogo?',
+  'Você relutava em usar o "dinheiro de jogo" para as despesas normais?',
+  'O jogo o tornou descuidado com o seu bem estar e o de sua família?',
+  'Alguma vez você já jogou por mais tempo do que planejava?',
+  'Alguma vez você já jogou para fugir das preocupações ou problemas?',
+  'Alguma vez você já cometeu, ou pensou em cometer um ato ilegal para financiar o jogo?',
+  'O jogo fez com que você tivesse dificuldades para dormir?',
+  'As discussões, desapontamentos ou frustrações fizeram com que você tivesse vontade de jogar?',
+  'Alguma vez você já teve vontade de celebrar alguma boa sorte com algumas horas de jogo?',
+  'Alguma vez você já pensou em se auto-destruir como resultado de seu jogo?'
 ];
 
 let respostas = [];
