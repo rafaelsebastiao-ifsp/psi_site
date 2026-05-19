@@ -1,7 +1,7 @@
 .hero {
   margin-top: 0;
   position: relative;
-  height: calc(111vh - var(--nav-height) - 4px);
+  height: calc(111dvh - var(--nav-height) - 4px);
   overflow: hidden;
 }
 
@@ -14,7 +14,9 @@
   align-items: center;
 }
 
-.slide.active { opacity: 1; }
+.slide.active {
+  opacity: 1;
+}
 
 .slide-bg {
   position: absolute;
@@ -27,19 +29,18 @@
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(90deg, rgba(0,0,0,0.55) 40%, transparent 80%);
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.55) 40%, transparent 80%);
 }
 
 .slide-content {
   position: relative;
   z-index: 2;
-  padding: 0 80px;
-  padding-top: 60px;
+  padding: 60px clamp(32px, 6vw, 80px) 0;
   max-width: 750px;
 }
 
 .slide-content h1 {
-  font-size: clamp(1rem, 4vw, 2.9rem);
+  font-size: clamp(1.4rem, 4vw, 2.9rem);
   font-weight: 800;
   color: var(--white);
   line-height: 1.15;
@@ -48,7 +49,7 @@
 
 .slide-content p {
   font-size: 1.1rem;
-  color: #D4A843;
+  color: var(--yellow-gold);
   line-height: 1.65;
   font-weight: 500;
   margin-bottom: 36px;
@@ -75,18 +76,12 @@
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  background: rgba(255,255,255,0.4);
+  background: rgba(255, 255, 255, 0.4);
   cursor: pointer;
   transition: background 0.3s;
   border: none;
 }
 
-.dot.active { background: var(--white); }
-
-.slide-1 .slide-bg { background-image: url('images/Home Page.png'); background-size: cover; background-position: center; }
-
-.slide-bg-reunioes { background-image: url('images/Home Page-7.png'); }
-
-.slide-bg-autoaval { background-image: url('images/Home Page-6.png'); }
-
-.slide-bg-videoteca { background-image: url('images/Home Page-8.png'); }
+.dot.active {
+  background: var(--white);
+}
