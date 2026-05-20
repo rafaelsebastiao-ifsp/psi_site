@@ -390,13 +390,6 @@ renderReunioes();
 reunioesRendered = true;
 
 
-
-
-
-
-
-
-
 // ===============================
 // MAPA LEAFLET
 // ===============================
@@ -419,29 +412,29 @@ function initMap() {
   }).addTo(map);
 
   // Reuniões convertidas em pontos
+
   const pontos = [
     {
       nome: 'Grupo Nova História — Osasco',
-      lat: -23.5329,
-      lng: -46.7917,
+      lat: -22.850469029797484,
+      lng: -47.230679185318635,
       endereco: 'Av. Thereza Ana Cecon Breda, 1896'
     },
 
     {
       nome: 'Grupo Recomeço — São Paulo',
-      lat: -23.5489,
-      lng: -46.6388,
+      lat: -23.547646905646168,
+      lng: -46.64575216401267,
       endereco: 'Rua da Consolação, 451'
     },
 
     {
       nome: 'Grupo Esperança — Santo André',
-      lat: -23.6639,
-      lng: -46.5383,
+      lat: -23.638222862947,
+      lng: -46.53930309132927,
       endereco: 'Av. Industrial, 2000'
     },
 
-    //JÁ CORRIGIDO
     {
       nome: 'Grupo Renascer — Campinas',
       lat: -22.903498189812275,
@@ -450,7 +443,6 @@ function initMap() {
     },
 
 
-    //JÁ CORRIGIDO
     {
       nome: 'Grupo Liberdade — Santos',
       lat: -23.96878119099821,
@@ -460,8 +452,8 @@ function initMap() {
 
     {
       nome: 'Grupo Horizonte — Guarulhos',
-      lat: -23.4628,
-      lng: -46.5333,
+      lat: -23.468878460731343,
+      lng: -46.528630066012575,
       endereco: 'Rua Sete de Setembro, 300'
     }
   ];
