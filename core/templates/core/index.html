@@ -69,7 +69,7 @@
         <div class="slide-bg" style="background-color: #1a2a4a;"></div>
         <div style="position:absolute;inset:0;background:linear-gradient(135deg,#0f1f3d 0%,#1a3a6b 50%,#2d5a8e 100%);">
         </div>
-        <img src="assets/images/main-page/quem-somos.jpg" alt="Quem somos" loading="eager" fetchpriority="high"
+        <img src="{% static 'assets/images/main-page/quem-somos.jpg' %}" alt="Quem somos" loading="eager" fetchpriority="high"
           style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;opacity:0.7;">
         <div style="position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,0.65) 45%,transparent 80%);">
         </div>
@@ -86,7 +86,7 @@
       </div>
 
       <div class="slide" id="slide-1">
-        <img src="assets/images/main-page/reunioes.jpg" alt="Reuniões" loading="lazy"
+        <img src="{% static 'assets/images/main-page/reunioes.jpg' %}" alt="Reuniões" loading="lazy"
           style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0.7;">
         <div style="position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,0.65) 45%,transparent 80%);">
         </div>
@@ -101,7 +101,7 @@
       </div>
 
       <div class="slide" id="slide-2">
-        <img src="assets/images/main-page/20-perguntas.jpg" alt="Autoavaliação" loading="lazy"
+        <img src="{% static 'assets/images/main-page/20-perguntas.jpg' %}" alt="Autoavaliação" loading="lazy"
           style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0.7;">
         <div style="position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,0.65) 45%,transparent 80%);">
         </div>
@@ -116,7 +116,7 @@
       </div>
 
       <div class="slide" id="slide-3">
-        <img src="assets/images/main-page/videos.jpg" alt="Videoteca" loading="lazy"
+        <img src="{% static 'assets/images/main-page/videos.jpg' %}" alt="Videoteca" loading="lazy"
           style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0.7;">
         <div style="position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,0.65) 45%,transparent 80%);">
         </div>
@@ -182,7 +182,7 @@
             <a class="btn btn-yellow" href="#" data-page="quem-somos">Saiba mais sobre o JA</a>
           </div>
           <div class="sobre-video">
-            <img src="assets/images/main-page/video-ja.jpg" alt="Vídeo sobre o JA" loading="lazy"
+            <img src="{% static 'assets/images/main-page/video-ja.jpg' %}" alt="Vídeo sobre o JA" loading="lazy"
               onerror="this.style.background='#1e293b';this.style.height='240px';">
             <button class="play-btn" id="play-sobre-btn" aria-label="Reproduzir vídeo sobre o JA"></button>
           </div>
@@ -293,7 +293,7 @@
           </a>
         </div>
         <div class="questions-preview-image">
-          <img src="assets/images/main-page/gabarito.jpg" alt="Autoavaliação" loading="lazy">
+          <img src="{% static 'assets/images/main-page/gabarito.jpg' %}" alt="Autoavaliação" loading="lazy">
         </div>
       </div>
     </section>
@@ -340,7 +340,7 @@
               espirituais. Assim nasceram os princípios utilizados até hoje em Jogadores Anônimos.</p>
           </div>
           <div class="historia-image">
-            <img src="assets/images/main-page/quem-somos.jpg" alt="História do JA" loading="lazy">
+            <img src="{% static 'assets/images/main-page/quem-somos.jpg' %}" alt="História do JA" loading="lazy">
           </div>
         </div>
 
@@ -555,7 +555,7 @@
       <p>Uma conversa honesta consigo mesmo</p>
     </div>
     <div class="autoaval-hero">
-      <img src="assets/images/main-page/gabarito.jpg" alt="Autoavaliação" loading="lazy">
+      <img src="{% static 'assets/images/main-page/gabarito.jpg' %}" alt="Autoavaliação" loading="lazy">
       <div class="autoaval-hero-content">
         <div class="autoaval-hero-text">
           <p>Escritas por pessoas que passaram pelo mesmo que você talvez esteja passando. Não é um diagnóstico, não é
