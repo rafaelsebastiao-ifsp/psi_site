@@ -4,6 +4,11 @@ let currentSlide = 0;
 const totalSlides = document.querySelectorAll('.slide').length;
 let sliderInterval;
 
+const somRoleta = new Audio('assets/images/som/cash.mp3');
+const imagem = document.getElementById("roleta-sonora");
+
+somRoleta.volume = 0.5; 
+
 function goSlide(idx) {
   const slides = document.querySelectorAll('.slide');
   const dots = document.querySelectorAll('.dot');
@@ -17,6 +22,11 @@ function goSlide(idx) {
   slides[currentSlide].classList.add('active');
   dots[currentSlide].classList.add('active');
   dots[currentSlide].setAttribute('aria-selected', 'true');
+  somRoleta.currentTime = 0; 
+    somRoleta.play().catch(error => {
+        
+        console.log("Aguardando interação do usuário para liberar o som.");
+    });
 }
 
 function nextSlide() {

@@ -85,3 +85,28 @@
 .dot.active {
   background: var(--white);
 }
+
+.container-animacao {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 500px;
+}
+
+.imagem-giratoria {
+    height: 600px;
+    width: 1000px; 
+    animation: flutuarGirando 4s linear infinite; 
+}
+
+@keyframes flutuarGirando {
+    0% {
+        transform: translateY(0) rotate(0deg);
+    }
+    50% {
+        transform: translateY(-20px) rotate(180deg); 
+    }
+    100% {
+        transform: translateY(0) rotate(360deg); 
+    }
+}
