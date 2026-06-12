@@ -2,7 +2,6 @@ package site.psi.ads3.service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -50,33 +49,20 @@ public class ReuniaoService {
     }
 
     private Reuniao findReuniaoById(Long id) {
-        return reuniaoRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Category not found"));
+        return reuniaoRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Category not found"));
     }
 
      public List<Reuniao> listarHoje() {
-
         LocalDate hoje = LocalDate.now();
-
         LocalDateTime inicio = hoje.atStartOfDay();
         LocalDateTime fim = hoje.atTime(23, 59, 59);
-
         return reuniaoRepository.findByDataHoraBetween(inicio, fim);
     }
 
     public List<Reuniao> listarSemana() {
-
         LocalDate hoje = LocalDate.now();
-
-        LocalDate inicioSemana =
-            hoje.with(java.time.DayOfWeek.MONDAY);
-
-        LocalDate fimSemana =
-            hoje.with(java.time.DayOfWeek.SUNDAY);
-
-        return reuniaoRepository.findByDataHoraBetween(
-            inicioSemana.atStartOfDay(),
-            fimSemana.atTime(23, 59, 59)
-        );
+        LocalDate inicioSemana = hoje.with(java.time.DayOfWeek.MONDAY);
+        LocalDate fimSemana = hoje.with(java.time.DayOfWeek.SUNDAY);
+        return reuniaoRepository.findByDataHoraBetween(inicioSemana.atStartOfDay(), fimSemana.atTime(23, 59, 59));
     }
 }

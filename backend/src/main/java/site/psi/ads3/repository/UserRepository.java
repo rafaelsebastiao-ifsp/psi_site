@@ -4,4 +4,6 @@ import org.springframework.stereotype.Repository;
 import site.psi.ads3.entity.User;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, Long> {}
+public interface UserRepository extends JpaRepository<User, Long> {
+    User findByLogin(String login);
+}

@@ -41,7 +41,6 @@ public class CidadeService {
     }
 
     private Cidade findCidadeById(Long id) {
-        return cidadeRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Category not found"));
+        return cidadeRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Category not found"));
     }
 }
