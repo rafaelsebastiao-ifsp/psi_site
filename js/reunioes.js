@@ -1,48 +1,149 @@
 'use strict';
 
 let reunioesRendered = false;
+let reunioesCache = []; // guarda os dados para o modal usar
 
 function initReunioes() {
   if (!reunioesRendered) {
     renderReunioes();
     reunioesRendered = true;
   }
-
-  setTimeout(() => {
-    initMap();
-  }, 100);
+  setTimeout(() => initMap(), 100);
 }
 
-function renderReunioes() {
+// ── Helpers ──
+
+function haversine(lat1, lng1, lat2, lng2) {
+  const R = 6371;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLng = (lng2 - lng1) * Math.PI / 180;
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(lat1 * Math.PI / 180) *
+    Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLng / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+async function geocodificar(endereco) {
+  const q = encodeURIComponent(endereco + ', Brasil');
+  try {
+    const res = await fetch(
+      `https://nominatim.openstreetmap.org/search?q=${q}&format=json&limit=1`,
+      { headers: { 'Accept-Language': 'pt-BR' } }
+    );
+    const data = await res.json();
+    if (data.length > 0)
+      return { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) };
+  } catch (e) {
+    console.warn('Geocodificação falhou para:', endereco);
+  }
+  return null;
+}
+
+function getPosicaoAtual() {
+  return new Promise((resolve) => {
+    if (!navigator.geolocation) return resolve(null);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+      () => resolve(null),
+      { timeout: 6000 }
+    );
+  });
+}
+
+function formatarData(dataHoraStr) {
+  const d = new Date(dataHoraStr);
+  const diasSem = ['DOM','SEG','TER','QUA','QUI','SEX','SAB'];
+  const meses   = ['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DEZ'];
+  return {
+    dia:     String(d.getDate()).padStart(2, '0'),
+    mes:     meses[d.getMonth()],
+    diasem:  diasSem[d.getDay()],
+    horario: d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+  };
+}
+
+// ── Render principal ──
+
+async function renderReunioes() {
   const container = document.getElementById('lista-reunioes');
   if (!container) return;
 
-  container.innerHTML = reunioesData.map((r, i) => `
-    <div class="reuniao-card" role="listitem" data-index="${i}">
-      <div class="reuniao-date">
-        <div class="day">${r.dia}</div>
-        <div class="month">${r.mes}</div>
-        <div class="weekday">${r.diasem}</div>
-      </div>
-      <div class="reuniao-info">
-        <h4>${r.nome}</h4>
-        <div class="time">${r.horario} &nbsp; ${r.endereco}</div>
-        <div class="tipo">${r.tipo}</div>
-        <div class="dist-badge">${r.dist}</div>
-      </div>
-      <div class="reuniao-action">
-        <button class="btn-detalhes" data-action="detalhes" data-index="${i}">Detalhes</button>
-      </div>
-    </div>
-  `).join('');
+  container.innerHTML = '<p style="padding:16px;color:#64748b">Carregando reuniões...</p>';
 
+  // 1. GPS do usuário
+  const posicaoUsuario = await getPosicaoAtual();
+
+  // 2. Busca do backend
+  let reunioes = [];
+  try {
+    const res = await fetch('http://localhost:8081/reunioes?size=50&sort=dataHora,asc');
+    const data = await res.json();
+    reunioes = data.content ?? [];
+  } catch (e) {
+    container.innerHTML = '<p style="padding:16px;color:#742C24">Erro ao carregar reuniões.</p>';
+    console.error(e);
+    return;
+  }
+
+  // 3. Geocodifica e calcula distância
+  const processadas = await Promise.all(
+    reunioes.map(async (r) => {
+      let distKm = null;
+      if (posicaoUsuario) {
+        const coords = await geocodificar(r.endereco);
+        if (coords) {
+          distKm = haversine(posicaoUsuario.lat, posicaoUsuario.lng, coords.lat, coords.lng);
+        }
+      }
+      return { ...r, distKm };
+    })
+  );
+
+  // 4. Ordena por distância
+  if (posicaoUsuario) {
+    processadas.sort((a, b) => {
+      if (a.distKm === null) return 1;
+      if (b.distKm === null) return -1;
+      return a.distKm - b.distKm;
+    });
+  }
+
+  reunioesCache = processadas; // salva para o modal
+
+  // 5. Renderiza cards
+  container.innerHTML = processadas.map((r, i) => {
+    const { dia, mes, diasem, horario } = formatarData(r.dataHora);
+    const distLabel = r.distKm !== null
+      ? `${r.distKm.toFixed(1).replace('.', ',')} KM DE VOCÊ`
+      : '';
+
+    return `
+      <div class="reuniao-card" role="listitem" data-index="${i}">
+        <div class="reuniao-date">
+          <div class="day">${dia}</div>
+          <div class="month">${mes}</div>
+          <div class="weekday">${diasem}</div>
+        </div>
+        <div class="reuniao-info">
+          <h4>${r.titulo}</h4>
+          <div class="time">${horario} &nbsp; ${r.endereco}</div>
+          ${distLabel ? `<div class="dist-badge">${distLabel}</div>` : ''}
+        </div>
+        <div class="reuniao-action">
+          <button class="btn-detalhes" data-action="detalhes" data-index="${i}">Detalhes</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  // 6. Clique nos cards
   container.addEventListener('click', (e) => {
     const btn = e.target.closest('[data-action="detalhes"]');
     if (!btn) return;
     const idx = Number(btn.dataset.index);
-    if (idx >= 0 && idx < reunioesData.length) {
-      openReuniaoModal(reunioesData[idx]);
-    }
+    if (reunioesCache[idx]) openReuniaoModal(reunioesCache[idx]);
   });
 }
 

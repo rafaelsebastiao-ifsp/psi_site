@@ -3,7 +3,7 @@
 let mapaInicializado = false;
 let map;
 
-function initMap() {
+async function initMap() {
   if (mapaInicializado) return;
   mapaInicializado = true;
 
@@ -13,21 +13,27 @@ function initMap() {
     attribution: '© OpenStreetMap'
   }).addTo(map);
 
-  // Usa as coordenadas direto do reunioesData (data.js)
-  reunioesData.forEach(p => {
-    if (!p.lat || !p.lng) return;
+  try {
+    const res = await fetch('http://localhost:8081/reunioes?size=50');
+    const data = await res.json();
+    const reunioes = data.content ?? [];
 
-    L.marker([p.lat, p.lng])
-      .addTo(map)
-      .bindPopup(`
-        <div style="min-width:220px">
-          <strong>${p.nome}</strong><br>
-          ${p.endereco}
-        </div>
-      `);
-  });
+    for (const r of reunioes) {
+      const coords = await geocodificar(r.endereco);
+      if (!coords) continue;
 
-  setTimeout(() => {
-    map.invalidateSize();
-  }, 300);
+      L.marker([coords.lat, coords.lng])
+        .addTo(map)
+        .bindPopup(`
+          <div style="min-width:200px">
+            <strong>${r.titulo}</strong><br>
+            ${r.endereco}
+          </div>
+        `);
+    }
+  } catch (e) {
+    console.error('Erro ao carregar mapa:', e);
+  }
+
+  setTimeout(() => map.invalidateSize(), 300);
 }
