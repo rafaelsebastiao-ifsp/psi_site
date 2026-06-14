@@ -1,7 +1,12 @@
 package site.psi.ads3.entity;
 import java.io.Serial;
-import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.List;
+import org.jspecify.annotations.Nullable;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -14,9 +19,9 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@Entity
+@Entity(name = "User")
 @Table(name = "users")
-public class User  implements Serializable {
+public class User implements UserDetails {
     @Serial
     private static final long serialVersionUID = 1L;
 
@@ -42,4 +47,20 @@ public class User  implements Serializable {
     }
 
     public User(){}
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        if ("ADMIN".equals(role)) return List.of(new SimpleGrantedAuthority("ADMIN"));
+        else return List.of(new SimpleGrantedAuthority("USER"));
+    }
+
+    @Override
+    public @Nullable String getPassword() {
+        return passwordHash;
+    }
+
+    @Override
+    public String getUsername() {
+        return login;
+    }
 }

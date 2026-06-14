@@ -1,10 +1,14 @@
 package site.psi.ads3.security;
-import io.jsonwebtoken.*;
-import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
-import java.security.Key;
-import java.util.Date;
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.JWTCreationException;
+import com.auth0.jwt.exceptions.JWTVerificationException;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 
 @Service
 public class JWTService {
@@ -12,41 +16,35 @@ public class JWTService {
     @Value("${jwt.secret}")
     private String SECRET;
 
-    @Value("${jwt.expiration}")
-    private long EXPIRATION;
+    public String generateToken(UserDetails user) throws RuntimeException {
+        try {
+            Algorithm algorithm = Algorithm.HMAC256(SECRET);
+            String token = JWT.create()
+                            .withIssuer("auth-api")
+                            .withSubject(user.getUsername())
+                            .withExpiresAt(genExpirationDate())
+                            .sign(algorithm);
+            return token;
+        } catch (JWTCreationException e) {
+            throw new RuntimeException("Error while generate token", e);
+        }
 
-    private Key getKey() {
-        return Keys.hmacShaKeyFor(SECRET.getBytes());
-    }
-
-    public String generateToken(Long id, String login) {
-        return Jwts.builder()
-                .setSubject(login)
-                .claim("id", id)
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION))
-                .signWith(getKey(), SignatureAlgorithm.HS256)
-                .compact();
     }
 
     public String extractLogin(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(getKey())
+        try {
+            Algorithm algorithm = Algorithm.HMAC256(SECRET);
+            return JWT.require(algorithm)
+                .withIssuer("auth-api")
                 .build()
-                .parseClaimsJws(token)
-                .getBody()
+                .verify(token)
                 .getSubject();
+        } catch (JWTVerificationException e) {
+            return "";
+        }
     }
 
-    public boolean isValid(String token) {
-        try {
-            Jwts.parserBuilder()
-                    .setSigningKey(getKey())
-                    .build()
-                    .parseClaimsJws(token);
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
+    private Instant genExpirationDate(){
+        return LocalDateTime.now().plusHours(2).toInstant(ZoneOffset.of("-03:00"));
     }
 }
