@@ -1055,21 +1055,6 @@
 /* ══════════════════════════════════════════
    PÁGINA: QUEM SOMOS (completa)
 ══════════════════════════════════════════ */
-
-.quem-logo-top {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #f8fafc;
-  gap: 18px;
-  padding-top: 125px;
-  margin-bottom: -30px;
-  padding-left: clamp(20px, 5vw, 60px);
-  padding-right: clamp(20px, 5vw, 60px);
-}
-
-.quem-logo-top svg  { width: 72px; height: 72px; }
-
 .quem-logo-text     { display: flex; flex-direction: column; }
 .logo-main          { color: var(--cor-padrao-ja); font-size: 1.6rem; font-weight: 800; line-height: 1; }
 .logo-highlight     { color: var(--yellow-gold);   font-size: 1.6rem; font-weight: 800; line-height: 1; }
@@ -1081,6 +1066,7 @@
 }
 
 .historia-header {
+  padding-top: 50px;
   text-align: center;
   max-width: 850px;
   margin: 0 auto 70px;
