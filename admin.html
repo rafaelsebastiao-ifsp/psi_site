@@ -11,7 +11,7 @@
 <div class="admin-panel">
 
   <!-- ══ Sidebar ══ -->
-  <aside class="sidebar">
+  <aside class="sidebar" id="sidebar">
     <div class="sidebar-logo">
       <h1>Jogadores Anônimos</h1>
       <span>Painel Administrativo</span>
@@ -23,8 +23,17 @@
     </nav>
   </aside>
 
+  <!-- ══ Overlay sidebar mobile ══ -->
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
   <!-- ══ Main ══ -->
   <main class="main-content">
+
+    <!-- Topbar mobile -->
+    <div class="mobile-topbar">
+      <button class="menu-toggle" id="menuToggle" aria-label="Abrir menu">☰</button>
+      <span class="mobile-topbar-title">Jogadores Anônimos</span>
+    </div>
 
     <header class="page-header">
       <h2>Painel Administrativo</h2>
@@ -49,33 +58,25 @@
 
     <!-- Cidades -->
     <section class="section">
-    <div class="section-header">
+      <div class="section-header">
         <h3>Cidades</h3>
-        <button class="btn btn--primary" id="btnNovaCidade">
-        + Nova cidade
-        </button>
-    </div>
-
-    <div class="table-wrap">
+        <button class="btn btn--primary" id="btnNovaCidade">+ Nova cidade</button>
+      </div>
+      <div class="table-wrap">
         <table>
-        <thead>
+          <thead>
             <tr>
-            <th>ID</th>
-            <th>Nome</th>
-            <th>UF</th>
-            <th>Ações</th>
+              <th>ID</th>
+              <th>Nome</th>
+              <th>UF</th>
+              <th>Ações</th>
             </tr>
-        </thead>
-
-        <tbody id="tbodyCidades">
-            <tr>
-            <td colspan="4" class="empty">
-                Carregando...
-            </td>
-            </tr>
-        </tbody>
+          </thead>
+          <tbody id="tbodyCidades">
+            <tr><td colspan="4" class="empty">Carregando...</td></tr>
+          </tbody>
         </table>
-    </div>
+      </div>
     </section>
 
     <!-- Reuniões -->
@@ -239,48 +240,47 @@
     </div>
   </div>
 </div>
+
+<!-- ══ Modal: Cidade ══ -->
 <div class="modal-overlay" id="modalCidade">
   <div class="modal-card">
-
     <div class="modal-header">
       <h2>Cidade</h2>
-      <button class="modal-close" data-close="modalCidade">
-        ×
-      </button>
+      <button class="modal-close" data-close="modalCidade">×</button>
     </div>
-
     <div class="modal-body">
-
       <input type="hidden" id="cidadeId">
-
       <div class="field">
         <label>Nome</label>
         <input type="text" id="cidadeNome">
       </div>
-
       <div class="field">
         <label>UF</label>
-        <input
-          type="text"
-          maxlength="2"
-          id="cidadeEstado">
+        <input type="text" maxlength="2" id="cidadeEstado">
       </div>
-
     </div>
-
     <div class="modal-footer">
-      <button class="btn btn--ghost" data-close="modalCidade">
-        Cancelar
-      </button>
-
-      <button class="btn btn--primary" id="btnSalvarCidade">
-        Salvar
-      </button>
+      <button class="btn btn--ghost" data-close="modalCidade">Cancelar</button>
+      <button class="btn btn--primary" id="btnSalvarCidade">Salvar</button>
     </div>
-
   </div>
 </div>
 
 <script src="js/admin.js"></script>
+<script>
+  const menuToggle = document.getElementById('menuToggle');
+  const sidebar    = document.getElementById('sidebar');
+  const overlay    = document.getElementById('sidebarOverlay');
+
+  menuToggle.addEventListener('click', () => {
+    sidebar.classList.toggle('open');
+    overlay.classList.toggle('open');
+  });
+
+  overlay.addEventListener('click', () => {
+    sidebar.classList.remove('open');
+    overlay.classList.remove('open');
+  });
+</script>
 </body>
 </html>
