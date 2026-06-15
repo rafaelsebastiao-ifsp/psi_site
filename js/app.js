@@ -1,3 +1,5 @@
+const API = 'http://localhost:8081';
+
 'use strict';
 
 let currentSlide = 0;
@@ -150,7 +152,7 @@ function showPage(page) {
 
   window.scrollTo({ top: 0, behavior: 'smooth' });
   closeMenu();
-
+  if (page === 'relatos') renderRelatos();
   if(page === 'videoteca') renderVideos?.();
   if(page === 'reunioes') initReunioes?.();
   if(page === 'dashboard') initDashboard?.();
@@ -267,6 +269,107 @@ document.querySelector('.slider-dots')
     goSlide(idx);
     startSlider();
   });
+
+document.addEventListener('DOMContentLoaded', () => {
+
+  // Fechar modais
+  document.addEventListener('click', (e) => {
+    const closeBtn = e.target.closest('[data-close]');
+    if (closeBtn) {
+      closeModal(closeBtn.dataset.close);
+      return;
+    }
+    if (e.target.classList.contains('modal-overlay')) {
+      closeModal(e.target.id);
+    }
+  });
+
+  // Abrir modal de relato — delegado no document
+  document.addEventListener('click', (e) => {
+    if (e.target.closest('#btnAddRelato')) {
+      openModal('modalRelato');
+    }
+  });
+
+  // Enviar relato
+  document.addEventListener('click', async (e) => {
+    if (!e.target.closest('#btnEnviarRelato')) return;
+
+    const nome     = document.getElementById('relatoNome').value.trim();
+    const idade    = document.getElementById('relatoIdade').value;
+    const descricao = document.getElementById('relatoDescricao').value.trim();
+
+    if (!nome || !idade || !descricao) {
+      toast('Preencha todos os campos.');
+      return;
+    }
+
+    try {
+      toast('Enviando relato...');
+      const res = await fetch(`${API}/feedbacks`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nome, idade: Number(idade), descricao }),
+      });
+
+      if (!res.ok) throw new Error();
+
+      toast('Relato enviado para avaliação!');
+      closeModal('modalRelato');
+      document.getElementById('relatoNome').value    = '';
+      document.getElementById('relatoIdade').value   = '';
+      document.getElementById('relatoDescricao').value = '';
+    } catch {
+      toast('Erro ao enviar relato.');
+    }
+  });
+
+});
+
+function openModal(id) {
+  const el = document.getElementById(id);
+  if (el) el.classList.add('active');
+}
+
+function closeModal(id) {
+  const el = document.getElementById(id);
+  if (el) el.classList.remove('active');
+}
+
+async function renderRelatos() {
+  const container = document.getElementById('relatosContainer');
+  if (!container) return;
+
+  container.innerHTML = '<p class="empty">Carregando relatos...</p>';
+
+  try {
+    const res = await fetch(`${API}/feedbacks/public`);
+
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}`);
+    }
+
+    const data = await res.json();
+
+    const relatos = data.content ?? [];
+
+    if (!relatos.length) {
+      container.innerHTML = '<p class="empty">Nenhum relato encontrado.</p>';
+      return;
+    }
+
+    container.innerHTML = relatos.map(r => `
+      <div class="relato-card">
+        <h3>${r.nome}, ${r.idade}</h3>
+        <p>${r.descricao}</p>
+      </div>
+    `).join('');
+
+  } catch (err) {
+    console.error(err);
+    container.innerHTML = '<p class="empty">Erro ao carregar relatos.</p>';
+  }
+}
 
 // ── init ──
 startSlider();

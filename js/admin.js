@@ -311,15 +311,41 @@ function renderFeedbacks(list) {
 
   grid.innerHTML = list.map(f => `
     <div class="relato-card">
+
       <h4>${f.nome}</h4>
       <p class="relato-meta">${f.idade} anos</p>
+
       <p>${f.descricao}</p>
+
+      <!-- STATUS (IMPORTANTE depois da alteração do backend) -->
+      <span class="badge badge--${(f.status ?? 'pendente').toLowerCase()}">
+        ${f.status ?? 'PENDENTE'}
+      </span>
+
       <div class="relato-actions">
+
+        <!-- MODERAÇÃO -->
+        <button class="btn btn--primary btn--sm"
+          onclick="aprovarFeedback(${f.id})">
+          Aprovar
+        </button>
+
+        <button class="btn btn--danger btn--sm"
+          onclick="rejeitarFeedback(${f.id})">
+          Rejeitar
+        </button>
+
+        <!-- EXISTENTES -->
         <button class="btn btn--gold btn--sm"
           onclick="abrirEditarFeedback(${f.id}, '${escAttr(f.nome)}', ${f.idade}, '${escAttr(f.descricao)}')">
           Editar
         </button>
-        <button class="btn btn--danger btn--sm" onclick="deletarFeedback(${f.id})">Excluir</button>
+
+        <button class="btn btn--danger btn--sm"
+          onclick="deletarFeedback(${f.id})">
+          Excluir
+        </button>
+
       </div>
     </div>
   `).join('');
@@ -480,4 +506,37 @@ async function deletarCidade(id) {
     toast('Erro ao excluir cidade', 'err');
   }
 }
+
+async function aprovarFeedback(id) {
+  try {
+    const res = await fetch(`${API}/feedbacks/${id}/approve`, {
+      method: 'PATCH',
+      headers: authHeaders()
+    });
+
+    if (!res.ok) throw new Error();
+
+    toast('Relato aprovado');
+    loadFeedbacks();
+  } catch {
+    toast('Erro ao aprovar', 'err');
+  }
+}
+
+async function rejeitarFeedback(id) {
+  try {
+    const res = await fetch(`${API}/feedbacks/${id}/reject`, {
+      method: 'PATCH',
+      headers: authHeaders()
+    });
+
+    if (!res.ok) throw new Error();
+
+    toast('Relato rejeitado');
+    loadFeedbacks();
+  } catch {
+    toast('Erro ao rejeitar', 'err');
+  }
+}
+
 init();

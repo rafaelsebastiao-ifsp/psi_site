@@ -2530,3 +2530,38 @@ footer p         { font-size: 0.85rem; opacity: 0.7; }
   font-size: 0.85rem;
   color: #64748b;
 }
+
+.modal-overlay {
+  display: none;
+}
+
+.modal-overlay.active {
+  display: flex;
+}
+
+.relatos-actions-footer {
+  display: flex;
+  justify-content: center;
+  padding: 40px 40px 60px;
+}
+
+.relatos-actions-header .btn {
+  padding: 16px 48px;
+  font-size: 1.1rem;
+}
+
+.relatos-actions-header {
+  display: flex;
+  justify-content: center;
+  padding: 40px 40px 60px;
+}
+
+.relatos-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  min-height: 300px;
+}

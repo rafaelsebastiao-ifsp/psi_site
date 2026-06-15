@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import site.psi.ads3.dto.request.FeedbackRequest;
 import site.psi.ads3.dto.response.FeedbackResponse;
 import site.psi.ads3.entity.Feedback;
+import site.psi.ads3.entity.FeedbackStatus;
 import site.psi.ads3.repository.FeedbackRepository;
 
 @RequiredArgsConstructor
@@ -45,5 +46,23 @@ public class FeedbackService {
     private Feedback findFeedbackById(Long id) {
         return feedbackRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Category not found"));
+    }
+
+    public Page<FeedbackResponse> getAprovados(Pageable pageable) {
+        return feedbackRepository
+                .findByStatus(FeedbackStatus.APROVADO, pageable)
+                .map(FeedbackResponse::fromEntity);
+    }
+
+    public void approve(Long id) {
+        Feedback fb = feedbackRepository.findById(id).orElseThrow();
+        fb.setStatus(FeedbackStatus.APROVADO);
+        feedbackRepository.save(fb);
+    }
+
+    public void reject(Long id) {
+        Feedback fb = feedbackRepository.findById(id).orElseThrow();
+        fb.setStatus(FeedbackStatus.REJEITADO);
+        feedbackRepository.save(fb);
     }
 }

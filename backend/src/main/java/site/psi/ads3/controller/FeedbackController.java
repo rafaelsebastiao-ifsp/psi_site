@@ -42,4 +42,19 @@ public class FeedbackController {
     public void deleteFeedback(@PathVariable Long id) {
         feedbackService.deleteFeedback(id);
     }
+
+    @GetMapping("/public")
+    public Page<FeedbackResponse> getFeedbacksPublicos(Pageable pageable) {
+        return feedbackService.getAprovados(pageable);
+    }
+
+    @PatchMapping("/{id}/approve")
+    public void approve(@PathVariable Long id) {
+        feedbackService.approve(id);
+    }
+
+    @PatchMapping("/{id}/reject")
+    public void reject(@PathVariable Long id) {
+        feedbackService.reject(id);
+    }
 }

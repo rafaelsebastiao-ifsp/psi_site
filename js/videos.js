@@ -28,7 +28,7 @@ function renderVideos() {
     const id = getYouTubeID(v.url);
 
     return `
-      <div class="video-card" onclick="openModal('${v.url}', '${v.title.replace(/'/g, "\\'")}')">
+      <div class="video-card" onclick="openVideoModal('${v.url}', '${v.title.replace(/'/g, "\\'")}')">
         
         <div class="thumb-wrapper">
           <img src="https://img.youtube.com/vi/${id}/mqdefault.jpg">
@@ -46,7 +46,7 @@ function renderVideos() {
   }).join("");
 }
 
-function openModal(url, title) {
+function openVideoModal(url, title) {
   const id = getYouTubeID(url);
 
   document.getElementById("videoModal").style.display = "flex";
@@ -61,7 +61,7 @@ function openModal(url, title) {
   `;
 }
 
-function closeModal() {
+function closeVideoModal() {
   document.getElementById("videoModal").style.display = "none";
   document.getElementById("videoFrame").innerHTML = "";
 }
