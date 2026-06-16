@@ -216,6 +216,65 @@ function renderizarCards(tipo = "todas") {
 
 }
 
+// ---------------------------
+// Frontend: fetch from backend API (/api/news)
+// ---------------------------
+async function fetchNewsFromBackend(query = '', page = 0, size = 12) {
+  try {
+    const qs = new URLSearchParams({ query: query || '', page: String(page), size: String(size) });
+    const res = await fetch(`/api/news?${qs.toString()}`);
+    if (!res.ok) return null;
+    const json = await res.json();
+    // json is a page object: { content: [...], totalElements, ... }
+    return json;
+  } catch (err) {
+    console.error('Error fetching news from backend', err);
+    return null;
+  }
+}
+
+async function renderNewsFeed({ query = '', tipo = 'todas' } = {}) {
+  const feed = document.getElementById('curiosidades-feed');
+  feed.innerHTML = '';
+
+  // Try backend first
+  const pageResp = await fetchNewsFromBackend(query, 0, 12);
+  let items = [];
+  if (pageResp && Array.isArray(pageResp.content)) {
+    items = pageResp.content.map(a => ({
+      tipo: 'noticias',
+      data: new Date(a.publishedAt).toLocaleDateString('pt-BR', { year: 'numeric', month: 'long', day: 'numeric' }),
+      titulo: a.title || a.title,
+      descricao: a.description || '',
+      imagem: a.imageUrl || './assets/images/curiosidades/card-economy.jpg',
+      url: a.url
+    }));
+  }
+
+  // Fallback to local cards if backend empty
+  if (!items.length) {
+    const filtered = tipo === 'todas' ? cards : cards.filter(c => c.tipo === tipo);
+    filtered.forEach(cardData => {
+      const card = criarCard(cardData);
+      feed.appendChild(card);
+    });
+    return;
+  }
+
+  items.forEach(cardData => {
+    const card = criarCard(cardData);
+    if (cardData.url) {
+      const a = card.querySelector('.card-link');
+      if (a) {
+        a.href = cardData.url;
+        a.target = '_blank';
+        a.rel = 'noopener noreferrer';
+      }
+    }
+    feed.appendChild(card);
+  });
+}
+
 // function configurarFiltros() {
 
 //   const botoes = document.querySelectorAll(
@@ -270,32 +329,32 @@ function configurarFiltros() {
       switch (categoria) {
 
         case "todas":
-          renderizarCards("todas");
+          renderNewsFeed({ query: '', tipo: 'todas' });
           break;
 
         case "noticias":
-          renderizarCards("noticias");
+          renderNewsFeed({ query: '', tipo: 'noticias' });
           break;
 
         case "estudos":
-          renderizarCards("estudo");
+          renderNewsFeed({ query: '', tipo: 'estudo' });
           break;
 
         case "leis":
-          renderizarCards("leis");
+          renderNewsFeed({ query: '', tipo: 'leis' });
           break;
 
         case "saude":
-          renderizarCards("saudeMental");
+          renderNewsFeed({ query: '', tipo: 'saudeMental' });
           break;
 
         case "historias":
-          renderizarCards("historiaReal");
+          renderNewsFeed({ query: '', tipo: 'historiaReal' });
           break;
 
         case "recuperacao":
           // quando criar os cards desse tipo
-          renderizarCards("recuperacao");
+          renderNewsFeed({ query: '', tipo: 'recuperacao' });
           break;
       }
 
@@ -307,8 +366,22 @@ function configurarFiltros() {
 
 document.addEventListener("DOMContentLoaded", () => {
 
-  renderizarCards();
+  // Initial render: use backend if available
+  renderNewsFeed({ query: '', tipo: 'todas' });
 
   configurarFiltros();
+
+  // Setup search input if exists
+  const input = document.querySelector('#curiosidades-search') || document.querySelector('.search-input');
+  if (input) {
+    let t;
+    input.addEventListener('input', (e) => {
+      clearTimeout(t);
+      t = setTimeout(() => {
+        const q = e.target.value.trim();
+        renderNewsFeed({ query: q, tipo: 'todas' });
+      }, 400);
+    });
+  }
 
 });
