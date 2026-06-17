@@ -1,6 +1,5 @@
 package site.psi.ads3.controller;
 
-import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -8,6 +7,7 @@ import org.springframework.web.bind.annotation.RestController;
 import site.psi.ads3.entity.NewsArticle;
 import site.psi.ads3.service.NewsService;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -21,12 +21,10 @@ public class NewsController {
     }
 
     @GetMapping
-    public Page<NewsArticle> list(
-            @RequestParam(value = "query", required = false) String query,
-            @RequestParam(value = "page", required = false, defaultValue = "0") int page,
-            @RequestParam(value = "size", required = false, defaultValue = "12") int size
+    public List<NewsArticle> list(
+            @RequestParam(value = "query", required = false) String query
     ) {
-        return newsService.search(query, page, size);
+        return newsService.search(query);
     }
 
     // Simple trigger endpoint (admin) to force a fetch (could be secured later)

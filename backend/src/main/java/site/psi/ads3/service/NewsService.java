@@ -1,25 +1,26 @@
 package site.psi.ads3.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
-import site.psi.ads3.entity.NewsArticle;
-import site.psi.ads3.repository.NewsArticleRepository;
-
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import site.psi.ads3.entity.NewsArticle;
+import site.psi.ads3.repository.NewsArticleRepository;
 
 @Service
 public class NewsService {
@@ -40,8 +41,7 @@ public class NewsService {
         this.repo = repo;
     }
 
-    // Run daily at 03:00
-    @Scheduled(cron = "0 0 3 * * *")
+    @Scheduled(fixedDelay = 1, timeUnit = TimeUnit.DAYS)
     public void scheduledFetch() {
         try {
             logger.info("Running scheduled news fetch...");
@@ -57,12 +57,10 @@ public class NewsService {
             return;
         }
 
-        // Build query for Portuguese + gambling-related terms
-        String q = "apostas OR bets OR \"jogo compulsivo\" OR \"vício em apostas\" OR gambling";
-        String url = String.format("https://newsapi.org/v2/everything?q=%s&language=pt&sortBy=publishedAt&pageSize=100&apiKey=%s",
-                encode(q), newsApiKey);
+        var q = "vício em apostas OR vicio em bets";
+        var url = String.format("https://newsapi.org/v2/everything?q=%s&language=pt&sortBy=publishedAt&pageSize=100&apiKey=%s", q, newsApiKey);
 
-        ResponseEntity<String> resp = restTemplate.getForEntity(url, String.class);
+        var resp = restTemplate.getForEntity(url, String.class);
             if (!resp.getStatusCode().is2xxSuccessful()) {
                 logger.warn("NewsAPI responded with status {}", resp.getStatusCode().value());
                 return;
@@ -75,12 +73,24 @@ public class NewsService {
 
             List<NewsArticle> created = new ArrayList<>();
 
+            List<String> articleUrls = new ArrayList<>();
             for (JsonNode a : articles) {
                 String articleUrl = a.path("url").asText(null);
                 if (articleUrl == null || articleUrl.isBlank()) continue;
+                articleUrls.add(articleUrl);
+            }
 
-                Optional<NewsArticle> exist = repo.findByUrl(articleUrl);
-                if (exist.isPresent()) continue; // skip duplicates
+            Set<String> existingUrls = new HashSet<>();
+            if (!articleUrls.isEmpty()) {
+                existingUrls.addAll(repo.findAllByUrlIn(articleUrls).stream()
+                        .map(NewsArticle::getUrl)
+                        .collect(Collectors.toSet()));
+            }
+
+            for (JsonNode a : articles) {
+                String articleUrl = a.path("url").asText(null);
+                if (articleUrl == null || articleUrl.isBlank()) continue;
+                if (existingUrls.contains(articleUrl)) continue; // skip duplicates
 
                 NewsArticle na = new NewsArticle();
                 na.setUrl(articleUrl);
@@ -116,11 +126,13 @@ public class NewsService {
             long total = repo.count();
             if (total > MAX_ARTICLES) {
                 long toRemove = total - MAX_ARTICLES;
-                Page<NewsArticle> oldest = repo.findAll(PageRequest.of(0, (int) toRemove, org.springframework.data.domain.Sort.by("publishedAt").ascending()));
-                List<NewsArticle> remove = oldest.getContent();
-                if (!remove.isEmpty()) {
-                    repo.deleteAllInBatch(remove);
-                    logger.info("Deleted {} old articles to enforce cap", remove.size());
+                List<NewsArticle> oldest = repo.findTop200ByOrderByPublishedAtAsc();
+                if (oldest.size() > toRemove) {
+                    List<NewsArticle> remove = oldest.subList(0, (int) toRemove);
+                    if (!remove.isEmpty()) {
+                        repo.deleteAllInBatch(remove);
+                        logger.info("Deleted {} old articles to enforce cap", remove.size());
+                    }
                 }
             }
 
@@ -129,16 +141,11 @@ public class NewsService {
         }
     }
 
-    private static String encode(String s) {
-        return s.replace(" ", "%20").replace("\"", "%22");
-    }
-
-    public Page<NewsArticle> search(String q, int page, int size) {
-        Pageable p = PageRequest.of(page, size);
+    public List<NewsArticle> search(String q) {
         if (q == null || q.isBlank()) {
-            return repo.findAll(PageRequest.of(page, size).withSort(org.springframework.data.domain.Sort.by("publishedAt").descending()));
+            return repo.findAllByOrderByPublishedAtDesc();
         }
-        return repo.findByTitleContainingIgnoreCaseOrDescriptionContainingIgnoreCaseOrderByPublishedAtDesc(q, q, p);
+        return repo.findAllByTitleContainingIgnoreCaseOrDescriptionContainingIgnoreCaseOrderByPublishedAtDesc(q, q);
     }
 
 }
