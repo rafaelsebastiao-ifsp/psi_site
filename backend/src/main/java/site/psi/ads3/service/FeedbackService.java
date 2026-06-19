@@ -1,5 +1,4 @@
 package site.psi.ads3.service;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -14,7 +13,6 @@ import site.psi.ads3.repository.FeedbackRepository;
 @Service
 public class FeedbackService {
 
-    @Autowired
     private final FeedbackRepository feedbackRepository;
 
     public FeedbackResponse criarFeedback(FeedbackRequest request) {
